@@ -13,7 +13,7 @@ import java.util.Properties;
 public class Postgres {
 
     private static final String DEFAULT_CONFIG_PATH =
-            System.getProperty("user.home") + "/Desktop/Arquivos/db_config.properties";
+            System.getProperty("user.home") + "/Desktop/Arquivos/db_vendas_upgrade.properties";
 
     private static Properties carregarConfiguracaoLocal() {
         Properties properties = new Properties();
