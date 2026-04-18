@@ -14,7 +14,7 @@ import com.luan.vendas.model.Produto;
 public class ProdutoDao {
 
     public boolean salvar(Produto produto) {
-        String sql = "INSERT INTO tproduto (nome_produto, preco_produto, qtde_estoque, fk_produto_categoria) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO tproduto (nome_produto, preco_produto, qtde_estoque, valor_compra, valor_venda, fk_produto_categoria) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = Postgres.conectar();
              PreparedStatement ps = conn != null
@@ -26,9 +26,11 @@ public class ProdutoDao {
             }
 
             ps.setString(1, produto.getNome());
-            ps.setDouble(2, produto.getPreco());
+            ps.setDouble(2, produto.getPreco_medio());
             ps.setDouble(3, produto.getQtde_estoque());
-            ps.setInt(4, produto.getCategoria().getId());
+            ps.setDouble(4, produto.getValor_ultima_compra());
+            ps.setDouble(5, produto.getValor_ultima_venda());
+            ps.setInt(6, produto.getCategoria().getId());
 
             int linhasAfetadas = ps.executeUpdate();
             if (linhasAfetadas > 0) {
@@ -71,6 +73,8 @@ public class ProdutoDao {
                         rs.getString("nome_produto"),
                         rs.getDouble("preco_produto"),
                         rs.getDouble("qtde_estoque"),
+                        rs.getDouble("valor_compra"),
+                        rs.getDouble("valor_venda"),
                         categoria
                 );
                 produtos.add(produto);
@@ -82,7 +86,7 @@ public class ProdutoDao {
     }
 
     public boolean alterar(Produto produto) {
-        String sql = "UPDATE tproduto SET nome_produto = ?, preco_produto = ?, qtde_estoque = ?, fk_produto_categoria = ? WHERE id_produto = ?";
+        String sql = "UPDATE tproduto SET nome_produto = ?, preco_produto = ?, qtde_estoque = ?, valor_compra = ?, valor_venda = ?, fk_produto_categoria = ? WHERE id_produto = ?";
 
         try (Connection conn = Postgres.conectar();
              PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
@@ -92,10 +96,12 @@ public class ProdutoDao {
             }
 
             ps.setString(1, produto.getNome());
-            ps.setDouble(2, produto.getPreco());
+            ps.setDouble(2, produto.getPreco_medio());
             ps.setDouble(3, produto.getQtde_estoque());
-            ps.setInt(4, produto.getCategoria().getId());
-            ps.setInt(5, produto.getId());
+            ps.setDouble(4, produto.getValor_ultima_compra());
+            ps.setDouble(5, produto.getValor_ultima_venda());
+            ps.setInt(6, produto.getCategoria().getId());
+            ps.setInt(7, produto.getId());
 
             int linhasAfetadas = ps.executeUpdate();
             return linhasAfetadas > 0;

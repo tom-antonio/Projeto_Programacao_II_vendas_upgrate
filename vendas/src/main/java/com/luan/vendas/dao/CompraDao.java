@@ -8,20 +8,20 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.luan.vendas.model.Cliente;
-import com.luan.vendas.model.ProdutoVenda;
-import com.luan.vendas.model.Venda;
+import com.luan.vendas.model.Compra;
+import com.luan.vendas.model.CompraProduto;
+import com.luan.vendas.model.Fornecedor;
 
-public class VendaDao {
+public class CompraDao {
 
-    private final ProdutoVendaDao produtoVendaDao;
+    private final CompraProdutoDao compraProdutoDao;
 
-    public VendaDao() {
-        this.produtoVendaDao = new ProdutoVendaDao();
+    public CompraDao() {
+        this.compraProdutoDao = new CompraProdutoDao();
     }
 
-    public boolean salvar(Venda venda) {
-        String sql = "INSERT INTO tvenda (data_venda, valor_total, id_cliente) VALUES (?, ?, ?)";
+    public boolean salvar(Compra compra) {
+        String sql = "INSERT INTO tcompra (data_compra, valor_total, id_fornecedor) VALUES (?, ?, ?)";
 
         try (Connection conn = Postgres.conectar()) {
             if (conn == null) {
@@ -31,9 +31,9 @@ public class VendaDao {
             conn.setAutoCommit(false);
 
             try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                ps.setDate(1, new java.sql.Date(venda.getData_venda().getTime()));
-                ps.setDouble(2, venda.getValor_total());
-                ps.setInt(3, venda.getCliente().getId());
+                ps.setDate(1, new java.sql.Date(compra.getData_compra().getTime()));
+                ps.setDouble(2, compra.getValor_total());
+                ps.setInt(3, compra.getFornecedor().getId());
 
                 int linhasAfetadas = ps.executeUpdate();
                 if (linhasAfetadas <= 0) {
@@ -43,13 +43,13 @@ public class VendaDao {
 
                 ResultSet rs = ps.getGeneratedKeys();
                 if (rs.next()) {
-                    venda.setId(rs.getInt(1));
+                    compra.setId(rs.getInt(1));
                 }
 
-                if (venda.getProdutosVenda() != null) {
-                    for (ProdutoVenda item : venda.getProdutosVenda()) {
-                        item.setIdVenda(venda.getId());
-                        if (!produtoVendaDao.inserir(conn, item)) {
+                if (compra.getCompraProdutos() != null) {
+                    for (CompraProduto item : compra.getCompraProdutos()) {
+                        item.setIdCompra(compra.getId());
+                        if (!compraProdutoDao.inserir(conn, item)) {
                             conn.rollback();
                             return false;
                         }
@@ -60,60 +60,58 @@ public class VendaDao {
                 return true;
             } catch (SQLException e) {
                 conn.rollback();
-                System.out.println("Erro ao salvar venda: " + e.getMessage());
+                System.out.println("Erro ao salvar compra: " + e.getMessage());
                 return false;
             } finally {
                 conn.setAutoCommit(true);
             }
         } catch (SQLException e) {
-            System.out.println("Erro ao conectar para salvar venda: " + e.getMessage());
+            System.out.println("Erro ao conectar para salvar compra: " + e.getMessage());
             return false;
         }
     }
 
-    public List<Venda> listarTodos() {
-        List<Venda> vendas = new ArrayList<>();
-        String sql = "SELECT v.id_venda, v.data_venda, v.valor_total, "
-                + "c.id_cliente, c.nome_cliente, c.cpf_cliente, c.rg_cliente, c.endereco_cliente, c.telefone_cliente "
-                + "FROM tvenda v "
-                + "JOIN tcliente c ON c.id_cliente = v.id_cliente "
-                + "ORDER BY v.data_venda DESC, v.id_venda DESC";
+    public List<Compra> listarTodos() {
+        List<Compra> compras = new ArrayList<>();
+        String sql = "SELECT c.id_compra, c.data_compra, c.valor_total, "
+                + "f.id_fornecedor, f.nome_fantasia, f.razao_social, f.cnpj "
+                + "FROM tcompra c "
+                + "JOIN tfornecedor f ON f.id_fornecedor = c.id_fornecedor "
+                + "ORDER BY c.data_compra DESC, c.id_compra DESC";
 
         try (Connection conn = Postgres.conectar();
              PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
 
             if (ps == null) {
-                return vendas;
+                return compras;
             }
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                Cliente cliente = new Cliente(
-                        rs.getInt("id_cliente"),
-                        rs.getString("nome_cliente"),
-                        rs.getString("cpf_cliente"),
-                        rs.getString("rg_cliente"),
-                        rs.getString("endereco_cliente"),
-                        rs.getString("telefone_cliente")
+                Fornecedor fornecedor = new Fornecedor(
+                        rs.getInt("id_fornecedor"),
+                        rs.getString("nome_fantasia"),
+                        rs.getString("razao_social"),
+                        rs.getString("cnpj")
                 );
 
-                Venda venda = new Venda(
-                        rs.getInt("id_venda"),
-                        rs.getDate("data_venda"),
+                Compra compra = new Compra(
+                        rs.getInt("id_compra"),
+                        rs.getDate("data_compra"),
                         rs.getDouble("valor_total"),
-                        cliente,
-                        produtoVendaDao.listarPorVendaId(rs.getInt("id_venda"))
+                        fornecedor,
+                        compraProdutoDao.listarPorCompraId(rs.getInt("id_compra"))
                 );
-                vendas.add(venda);
+                compras.add(compra);
             }
         } catch (SQLException e) {
-            System.out.println("Erro ao listar vendas: " + e.getMessage());
+            System.out.println("Erro ao listar compras: " + e.getMessage());
         }
-        return vendas;
+        return compras;
     }
 
-    public boolean alterar(Venda venda) {
-        String sql = "UPDATE tvenda SET data_venda = ?, valor_total = ?, id_cliente = ? WHERE id_venda = ?";
+    public boolean alterar(Compra compra) {
+        String sql = "UPDATE tcompra SET data_compra = ?, valor_total = ?, id_fornecedor = ? WHERE id_compra = ?";
 
         try (Connection conn = Postgres.conectar()) {
             if (conn == null) {
@@ -123,10 +121,10 @@ public class VendaDao {
             conn.setAutoCommit(false);
 
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                ps.setDate(1, new java.sql.Date(venda.getData_venda().getTime()));
-                ps.setDouble(2, venda.getValor_total());
-                ps.setInt(3, venda.getCliente().getId());
-                ps.setInt(4, venda.getId());
+                ps.setDate(1, new java.sql.Date(compra.getData_compra().getTime()));
+                ps.setDouble(2, compra.getValor_total());
+                ps.setInt(3, compra.getFornecedor().getId());
+                ps.setInt(4, compra.getId());
 
                 int linhasAfetadas = ps.executeUpdate();
                 if (linhasAfetadas <= 0) {
@@ -134,15 +132,15 @@ public class VendaDao {
                     return false;
                 }
 
-                if (!produtoVendaDao.excluir(venda.getId(), conn)) {
+                if (!compraProdutoDao.excluir(compra.getId(), conn)) {
                     conn.rollback();
                     return false;
                 }
 
-                if (venda.getProdutosVenda() != null) {
-                    for (ProdutoVenda item : venda.getProdutosVenda()) {
-                        item.setIdVenda(venda.getId());
-                        if (!produtoVendaDao.inserir(conn, item)) {
+                if (compra.getCompraProdutos() != null) {
+                    for (CompraProduto item : compra.getCompraProdutos()) {
+                        item.setIdCompra(compra.getId());
+                        if (!compraProdutoDao.inserir(conn, item)) {
                             conn.rollback();
                             return false;
                         }
@@ -153,19 +151,19 @@ public class VendaDao {
                 return true;
             } catch (SQLException e) {
                 conn.rollback();
-                System.out.println("Erro ao alterar venda: " + e.getMessage());
+                System.out.println("Erro ao alterar compra: " + e.getMessage());
                 return false;
             } finally {
                 conn.setAutoCommit(true);
             }
         } catch (SQLException e) {
-            System.out.println("Erro ao conectar para alterar venda: " + e.getMessage());
+            System.out.println("Erro ao conectar para alterar compra: " + e.getMessage());
             return false;
         }
     }
 
     public boolean excluir(int id) {
-        String sql = "DELETE FROM tvenda WHERE id_venda = ?";
+        String sql = "DELETE FROM tcompra WHERE id_compra = ?";
 
         try (Connection conn = Postgres.conectar()) {
             if (conn == null) {
@@ -175,7 +173,7 @@ public class VendaDao {
             conn.setAutoCommit(false);
 
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
-                if (!produtoVendaDao.excluir(id, conn)) {
+                if (!compraProdutoDao.excluir(id, conn)) {
                     conn.rollback();
                     return false;
                 }
@@ -191,13 +189,13 @@ public class VendaDao {
                 return true;
             } catch (SQLException e) {
                 conn.rollback();
-                System.out.println("Erro ao excluir venda: " + e.getMessage());
+                System.out.println("Erro ao excluir compra: " + e.getMessage());
                 return false;
             } finally {
                 conn.setAutoCommit(true);
             }
         } catch (SQLException e) {
-            System.out.println("Erro ao conectar para excluir venda: " + e.getMessage());
+            System.out.println("Erro ao conectar para excluir compra: " + e.getMessage());
             return false;
         }
     }

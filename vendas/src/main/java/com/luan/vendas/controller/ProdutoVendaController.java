@@ -46,7 +46,7 @@ public class ProdutoVendaController {
             return "ID da relação produto-venda inválido.";
         }
 
-        boolean excluido = produtoVendaDao.excluir(id);
+        boolean excluido = produtoVendaDao.excluir(id, null);
         if (!excluido) {
             return "Erro ao excluir relação produto-venda do banco de dados.";
         }

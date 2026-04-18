@@ -14,7 +14,7 @@ public class ProdutoController {
 		this.produtoDao = new ProdutoDao();
 	}
 
-	public String salvarProduto(String nome, double preco, double qtdeEstoque, int categoriaId) {
+	public String salvarProduto(String nome, double preco, double qtdeEstoque, double valor_ultima_compra, double valor_ultima_venda, int categoriaId) {
 		if (nome == null || nome.trim().isEmpty()) {
 			return "O nome do produto não pode ser vazio.";
 		}
@@ -23,6 +23,12 @@ public class ProdutoController {
 		}
 		if (qtdeEstoque < 0) {
 			return "A quantidade em estoque não pode ser menor que zero.";
+		}
+		if (valor_ultima_compra < 0) {
+			return "O valor da última compra não pode ser menor que zero.";
+		}
+		if (valor_ultima_venda < 0) {
+			return "O valor da última venda não pode ser menor que zero.";
 		}
 		if (categoriaId <= 0) {
 			return "ID da categoria inválido.";
@@ -33,7 +39,9 @@ public class ProdutoController {
 
 		Produto produto = new Produto();
 		produto.setNome(nome);
-		produto.setPreco(preco);
+		produto.setPreco_medio(preco);
+		produto.setValor_ultima_compra(valor_ultima_compra);
+		produto.setValor_ultima_venda(valor_ultima_venda);
 		produto.setQtde_estoque(qtdeEstoque);
 		produto.setCategoria(categoria);
 
@@ -45,7 +53,7 @@ public class ProdutoController {
 		return null;
 	}
 
-	public String alterarProduto(int id, String nome, double preco, double qtdeEstoque, int categoriaId) {
+	public String alterarProduto(int id, String nome, double preco, double qtdeEstoque, double valor_ultima_compra, double valor_ultima_venda, int categoriaId) {
 		if (id <= 0) {
 			return "ID do produto inválido.";
 		}
@@ -58,6 +66,12 @@ public class ProdutoController {
 		if (qtdeEstoque < 0) {
 			return "A quantidade em estoque não pode ser menor que zero.";
 		}
+		if (valor_ultima_compra < 0) {
+			return "O valor da última compra não pode ser menor que zero.";
+		}
+		if (valor_ultima_venda < 0) {
+			return "O valor da última venda não pode ser menor que zero.";
+		}
 		if (categoriaId <= 0) {
 			return "ID da categoria inválido.";
 		}
@@ -68,8 +82,10 @@ public class ProdutoController {
 		Produto produto = new Produto();
 		produto.setId(id);
 		produto.setNome(nome);
-		produto.setPreco(preco);
+		produto.setPreco_medio(preco);
 		produto.setQtde_estoque(qtdeEstoque);
+		produto.setValor_ultima_compra(valor_ultima_compra);
+		produto.setValor_ultima_venda(valor_ultima_venda);
 		produto.setCategoria(categoria);
 
 		boolean alterado = produtoDao.alterar(produto);

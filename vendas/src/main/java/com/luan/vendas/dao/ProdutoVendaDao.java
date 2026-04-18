@@ -74,33 +74,33 @@ public class ProdutoVendaDao {
         return relacionamentos;
     }
 
-    public boolean excluir(int id) {
-        String sql = "DELETE FROM tprod_venda WHERE id_prodvenda = ?";
+    public boolean excluir(int vendaId, Connection conn) {
+        String sql = "DELETE FROM tprod_venda WHERE fk_venda = ?";
 
-        try (Connection conn = Postgres.conectar();
-             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
+        if (conn != null) {
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, vendaId);
+                ps.executeUpdate();
+                return true;
+            } catch (SQLException e) {
+                System.out.println("Erro ao excluir relação produto-venda: " + e.getMessage());
+                return false;
+            }
+        }
+
+        try (Connection novaConn = Postgres.conectar();
+             PreparedStatement ps = novaConn != null ? novaConn.prepareStatement(sql) : null) {
 
             if (ps == null) {
                 return false;
             }
 
-            ps.setInt(1, id);
-
-            int linhasAfetadas = ps.executeUpdate();
-            return linhasAfetadas > 0;
-        } catch (SQLException e) {
-            System.out.println("Erro ao excluir relação produto-venda: " + e.getMessage());
-        }
-        return false;
-    }
-
-    public boolean excluirPorVendaId(Connection conn, int vendaId) throws SQLException {
-        String sql = "DELETE FROM tprod_venda WHERE fk_venda = ?";
-
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, vendaId);
             ps.executeUpdate();
             return true;
+        } catch (SQLException e) {
+            System.out.println("Erro ao excluir relação produto-venda: " + e.getMessage());
+            return false;
         }
     }
 
