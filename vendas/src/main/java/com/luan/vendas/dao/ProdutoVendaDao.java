@@ -26,13 +26,12 @@ public class ProdutoVendaDao {
     }
 
     boolean inserir(Connection conn, ProdutoVenda produtoVenda) throws SQLException {
-        String sql = "INSERT INTO tprod_venda (fk_venda, fk_produto, qtde_prodvenda, valor_unit) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO tprod_venda (fk_venda, fk_produto, qtde_prodvenda) VALUES (?, ?, ?)";
 
         try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, produtoVenda.getIdVenda());
             ps.setInt(2, produtoVenda.getIdProduto());
             ps.setInt(3, produtoVenda.getQtdeProduto());
-            ps.setDouble(4, produtoVenda.getValorUnit());
 
             int linhasAfetadas = ps.executeUpdate();
             if (linhasAfetadas > 0) {

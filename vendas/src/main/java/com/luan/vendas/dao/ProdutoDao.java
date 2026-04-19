@@ -14,7 +14,7 @@ import com.luan.vendas.model.Produto;
 public class ProdutoDao {
 
     public boolean salvar(Produto produto) {
-        String sql = "INSERT INTO tproduto (nome_produto, preco_produto, qtde_estoque, valor_compra, valor_venda, fk_produto_categoria) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tproduto (nome_produto, preco_produto, qtde_estoque, valor_ultima_compra, valor_ultima_venda, fk_produto_categoria) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = Postgres.conectar();
              PreparedStatement ps = conn != null
