@@ -13,7 +13,8 @@ import com.luan.vendas.model.FornecedorProduto;
 public class FornecedorProdutoDao {
 
     public boolean salvar(FornecedorProduto fornecedorProduto) {
-        String sql = "INSERT INTO tprodforne (fk_fornecedor, fk_produto) VALUES (?, ?)";
+        String sql = "INSERT INTO tprodforne (fk_fornecedor, fk_produto) VALUES (?, ?) "
+            + "ON CONFLICT (fk_fornecedor, fk_produto) DO NOTHING";
 
         try (Connection conn = Postgres.conectar();
              PreparedStatement ps = conn != null
@@ -35,6 +36,9 @@ public class FornecedorProdutoDao {
                 }
                 return true;
             }
+
+            // Quando ja existe a combinacao fornecedor-produto, mantemos operacao idempotente.
+            return true;
         } catch (SQLException e) {
             System.out.println("Erro ao salvar relação fornecedor-produto: " + e.getMessage());
         }

@@ -44,7 +44,7 @@ public class FornecedorDao {
 
     public List<Fornecedor> listarTodos() {
         List<Fornecedor> fornecedores = new ArrayList<>();
-        String sql = "SELECT id_fornecedor, nome_fantasia, razao_social, cnpj FROM tfornecedor ORDER BY nome_fantasia";
+        String sql = "SELECT id_fornecedor, nome_fornecedor, razao_fornecedor, cnpj_fornecedor FROM tfornecedor ORDER BY nome_fornecedor";
 
         try (Connection conn = Postgres.conectar();
              PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
@@ -57,9 +57,9 @@ public class FornecedorDao {
             while (rs.next()) {
                 Fornecedor fornecedor = new Fornecedor(
                     rs.getInt("id_fornecedor"),
-                    rs.getString("nome_fantasia"),
-                    rs.getString("razao_social"),
-                    rs.getString("cnpj")
+                    rs.getString("nome_fornecedor"),
+                    rs.getString("razao_fornecedor"),
+                    rs.getString("cnpj_fornecedor")
                 );
                 fornecedores.add(fornecedor);
             }

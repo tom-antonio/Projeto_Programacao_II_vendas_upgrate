@@ -74,7 +74,10 @@ public class CompraDao {
     public List<Compra> listarTodos() {
         List<Compra> compras = new ArrayList<>();
         String sql = "SELECT c.id_compra, c.data_compra, c.valor_total, "
-                + "f.id_fornecedor, f.nome_fantasia, f.razao_social, f.cnpj "
+            + "f.id_fornecedor, "
+            + "f.nome_fornecedor AS nome_fantasia, "
+            + "f.razao_fornecedor AS razao_social, "
+            + "f.cnpj_fornecedor AS cnpj "
                 + "FROM tcompra c "
                 + "JOIN tfornecedor f ON f.id_fornecedor = c.id_fornecedor "
                 + "ORDER BY c.data_compra DESC, c.id_compra DESC";
