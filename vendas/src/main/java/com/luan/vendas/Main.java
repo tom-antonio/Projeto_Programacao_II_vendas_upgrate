@@ -14,7 +14,7 @@ import com.luan.vendas.controller.VendaController;
 import com.luan.vendas.model.CompraProduto;
 import com.luan.vendas.model.ProdutoVenda;
 
-public class App {
+public class Main {
 
     public static void main(String[] args) {
 

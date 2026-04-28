@@ -14,7 +14,7 @@ import com.luan.vendas.model.Produto;
 public class ProdutoDao {
 
     public boolean salvar(Produto produto) {
-        String sql = "INSERT INTO tproduto (nome_produto, preco_produto, qtde_estoque, valor_ultima_compra, valor_ultima_venda, fk_produto_categoria) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tproduto (nome_produto, preco_medio, qtde_estoque, valor_ultima_compra, valor_ultima_venda, fk_produto_categoria) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = Postgres.conectar();
              PreparedStatement ps = conn != null
@@ -129,5 +129,14 @@ public class ProdutoDao {
             System.out.println("Erro ao excluir produto: " + e.getMessage());
         }
         return false;
+    }
+
+    public Produto pesquisar(int id_produto){
+        try {
+            conn = Postgres.conectar();
+            Statement stmt = conn.createStatement();
+            
+        } catch ( e) {
+        }
     }
 }

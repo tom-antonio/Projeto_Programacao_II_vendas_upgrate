@@ -112,4 +112,8 @@ public class ProdutoController {
 	public List<Produto> pesquisarProduto() {
 		return produtoDao.listarTodos();
 	}
+
+	public boolean atualizarEstoque(Produto produto, int qtde_produto){
+		Produto produtoExistente = produtoDao.
+	}
 }
