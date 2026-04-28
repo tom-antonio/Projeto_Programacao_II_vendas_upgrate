@@ -4,16 +4,20 @@ import java.util.Date;
 import java.util.List;
 
 import com.luan.vendas.dao.CompraDao;
+import com.luan.vendas.dao.ProdutoDao;
 import com.luan.vendas.model.Compra;
 import com.luan.vendas.model.CompraProduto;
 import com.luan.vendas.model.Fornecedor;
+import com.luan.vendas.model.Produto;
 
 public class CompraController {
 
     private final CompraDao compraDao;
+    private final ProdutoDao produtoDao;
 
     public CompraController() {
         this.compraDao = new CompraDao();
+        this.produtoDao = new ProdutoDao();
     }
 
     public String salvarCompra(Date dataCompra, double valorTotal, int fornecedorId, List<CompraProduto> compraProdutos) {
@@ -42,6 +46,15 @@ public class CompraController {
             }
         }
 
+        String erroEstoque = verificarEstoque(compraProdutos);
+        if (erroEstoque != null) {
+            return erroEstoque;
+        }
+
+        if (!atualizarEstoque(compraProdutos, 1)) {
+            return "Não foi possível atualizar o estoque dos produtos da compra.";
+        }
+
         Fornecedor fornecedor = new Fornecedor();
         fornecedor.setId(fornecedorId);
 
@@ -53,10 +66,36 @@ public class CompraController {
 
         boolean salvo = compraDao.salvar(compra);
         if (!salvo) {
+            atualizarEstoque(compraProdutos, -1);
             return "Erro ao salvar compra no banco de dados.";
         }
 
         return null;
+    }
+
+    private String verificarEstoque(List<CompraProduto> compraProdutos) {
+        for (CompraProduto compraProduto : compraProdutos) {
+            Produto produtoExistente = produtoDao.pesquisar(compraProduto.getIdProduto());
+            if (produtoExistente == null) {
+                return "Produto não encontrado para a compra.";
+            }
+        }
+
+        return null;
+    }
+
+    private boolean atualizarEstoque(List<CompraProduto> compraProdutos, int sinal) {
+        for (CompraProduto compraProduto : compraProdutos) {
+            Produto produto = new Produto();
+            produto.setId(compraProduto.getIdProduto());
+
+            boolean atualizado = produtoDao.atualizarEstoque(produto, sinal * compraProduto.getQtdeProduto());
+            if (!atualizado) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public String alterarCompra(int id, Date dataCompra, double valorTotal, int fornecedorId, List<CompraProduto> compraProdutos) {

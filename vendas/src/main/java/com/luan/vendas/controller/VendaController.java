@@ -3,17 +3,21 @@ package com.luan.vendas.controller;
 import java.util.Date;
 import java.util.List;
 
+import com.luan.vendas.dao.ProdutoDao;
 import com.luan.vendas.dao.VendaDao;
 import com.luan.vendas.model.Cliente;
+import com.luan.vendas.model.Produto;
 import com.luan.vendas.model.ProdutoVenda;
 import com.luan.vendas.model.Venda;
 
 public class VendaController {
 
 	private final VendaDao vendaDao;
+	private final ProdutoDao produtoDao;
 
 	public VendaController() {
 		this.vendaDao = new VendaDao();
+		this.produtoDao = new ProdutoDao();
 	}
 
 	public String salvarVenda(Date dataVenda, double valorTotal, int clienteId, List<ProdutoVenda> produtosVenda) {
@@ -42,6 +46,15 @@ public class VendaController {
 			}
 		}
 
+		String erroEstoque = verificarEstoque(produtosVenda);
+		if (erroEstoque != null) {
+			return erroEstoque;
+		}
+
+		if (!alterarEstoque(produtosVenda, -1)) {
+			return "Não foi possível atualizar o estoque dos produtos da venda.";
+		}
+
 		Cliente cliente = new Cliente();
 		cliente.setId(clienteId);
 
@@ -57,6 +70,35 @@ public class VendaController {
 		}
 
 		return null;
+	}
+
+	private String verificarEstoque(List<ProdutoVenda> produtosVenda) {
+		for (ProdutoVenda produtoVenda : produtosVenda) {
+			Produto produtoExistente = produtoDao.pesquisar(produtoVenda.getIdProduto());
+			if (produtoExistente == null) {
+				return "Produto não encontrado para a venda.";
+			}
+			if (produtoExistente.getQtde_estoque() < 1) {
+				return "Produto ID " + produtoVenda.getIdProduto() + " sem estoque disponível.";
+			}
+			if (produtoExistente.getQtde_estoque() < produtoVenda.getQtdeProduto()) {
+				return "Estoque insuficiente para o produto ID " + produtoVenda.getIdProduto() + ".";
+			}
+		}
+		return null;
+	}
+
+	private boolean alterarEstoque(List<ProdutoVenda> produtosVenda, int sinal) {
+		for (ProdutoVenda produtoVenda : produtosVenda) {
+			Produto produto = new Produto();
+			produto.setId(produtoVenda.getIdProduto());
+
+			boolean atualizado = produtoDao.atualizarEstoque(produto, sinal * produtoVenda.getQtdeProduto());
+			if (!atualizado) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public String alterarVenda(int id, Date dataVenda, double valorTotal, int clienteId, List<ProdutoVenda> produtosVenda) {
@@ -102,7 +144,6 @@ public class VendaController {
 		if (!alterado) {
 			return "Erro ao alterar venda no banco de dados.";
 		}
-
 		return null;
 	}
 
