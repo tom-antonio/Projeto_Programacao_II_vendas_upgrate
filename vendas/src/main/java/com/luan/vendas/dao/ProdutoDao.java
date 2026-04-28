@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,32 +13,22 @@ import com.luan.vendas.model.Produto;
 public class ProdutoDao {
 
     public boolean salvar(Produto produto) {
-        String sql = "INSERT INTO tproduto (nome_produto, preco_medio, qtde_estoque, valor_ultima_compra, valor_ultima_venda, fk_produto_categoria) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tproduto (id_produto, nome_produto, qtde_estoque, fk_produto_categoria) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = Postgres.conectar();
-             PreparedStatement ps = conn != null
-                     ? conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
-                     : null) {
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
 
             if (ps == null) {
                 return false;
             }
 
-            ps.setString(1, produto.getNome());
-            ps.setDouble(2, produto.getPreco_medio());
+            ps.setInt(1, produto.getId());
+            ps.setString(2, produto.getNome());
             ps.setDouble(3, produto.getQtde_estoque());
-            ps.setDouble(4, produto.getValor_ultima_compra());
-            ps.setDouble(5, produto.getValor_ultima_venda());
-            ps.setInt(6, produto.getCategoria().getId());
+            ps.setInt(4, produto.getCategoria().getId());
 
             int linhasAfetadas = ps.executeUpdate();
-            if (linhasAfetadas > 0) {
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    produto.setId(rs.getInt(1));
-                }
-                return true;
-            }
+            return linhasAfetadas > 0;
         } catch (SQLException e) {
             System.out.println("Erro ao salvar produto: " + e.getMessage());
         }
@@ -86,7 +75,7 @@ public class ProdutoDao {
     }
 
     public boolean alterar(Produto produto) {
-        String sql = "UPDATE tproduto SET nome_produto = ?, preco_medio = ?, qtde_estoque = ?, valor_ultima_compra = ?, valor_ultima_venda = ?, fk_produto_categoria = ? WHERE id_produto = ?";
+        String sql = "UPDATE tproduto SET nome_produto = ?, qtde_estoque = ?, fk_produto_categoria = ? WHERE id_produto = ?";
 
         try (Connection conn = Postgres.conectar();
              PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
@@ -96,12 +85,9 @@ public class ProdutoDao {
             }
 
             ps.setString(1, produto.getNome());
-            ps.setDouble(2, produto.getPreco_medio());
-            ps.setDouble(3, produto.getQtde_estoque());
-            ps.setDouble(4, produto.getValor_ultima_compra());
-            ps.setDouble(5, produto.getValor_ultima_venda());
-            ps.setInt(6, produto.getCategoria().getId());
-            ps.setInt(7, produto.getId());
+            ps.setDouble(2, produto.getQtde_estoque());
+            ps.setInt(3, produto.getCategoria().getId());
+            ps.setInt(4, produto.getId());
 
             int linhasAfetadas = ps.executeUpdate();
             return linhasAfetadas > 0;
@@ -177,6 +163,69 @@ public class ProdutoDao {
             return linhasAfetadas > 0;
         } catch (SQLException e) {
             System.out.println("Erro ao atualizar estoque do produto: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean atualizarValorUltimaCompra(int idProduto, double valor) {
+        String sql = "UPDATE tproduto SET valor_ultima_compra = ? WHERE id_produto = ?";
+
+        try (Connection conn = Postgres.conectar();
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
+
+            if (ps == null) {
+                return false;
+            }
+
+            ps.setDouble(1, valor);
+            ps.setInt(2, idProduto);
+
+            int linhasAfetadas = ps.executeUpdate();
+            return linhasAfetadas > 0;
+        } catch (SQLException e) {
+            System.out.println("Erro ao atualizar valor_ultima_compra do produto: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean atualizarPrecoMedio(int idProduto) {
+        String sql = "UPDATE tproduto SET preco_medio = (SELECT AVG(valor_unit) FROM tprod_compra WHERE fk_produto = ?) WHERE id_produto = ?";
+
+        try (Connection conn = Postgres.conectar();
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
+
+            if (ps == null) {
+                return false;
+            }
+
+            ps.setInt(1, idProduto);
+            ps.setInt(2, idProduto);
+
+            int linhasAfetadas = ps.executeUpdate();
+            return linhasAfetadas > 0;
+        } catch (SQLException e) {
+            System.out.println("Erro ao atualizar preco_medio do produto: " + e.getMessage());
+        }
+        return false;
+    }
+
+    public boolean atualizarValorUltimaVenda(int idProduto, double valor) {
+        String sql = "UPDATE tproduto SET valor_ultima_venda = ? WHERE id_produto = ?";
+
+        try (Connection conn = Postgres.conectar();
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
+
+            if (ps == null) {
+                return false;
+            }
+
+            ps.setDouble(1, valor);
+            ps.setInt(2, idProduto);
+
+            int linhasAfetadas = ps.executeUpdate();
+            return linhasAfetadas > 0;
+        } catch (SQLException e) {
+            System.out.println("Erro ao atualizar valor_ultima_venda do produto: " + e.getMessage());
         }
         return false;
     }

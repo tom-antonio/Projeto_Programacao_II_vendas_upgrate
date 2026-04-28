@@ -13,45 +13,39 @@ public class CompraProdutoController {
         this.compraProdutoDao = new CompraProdutoDao();
     }
 
-    public String salvarCompraProduto(int compraId, int produtoId, int qtdeProduto, double valorUnit) {
+    public boolean salvarCompraProduto(int id, int compraId, int produtoId, int qtdeProduto, double valorUnit) {
+        if (id <= 0) {
+            return false;
+        }
         if (compraId <= 0) {
-            return "ID da compra inválido.";
+            return false;
         }
         if (produtoId <= 0) {
-            return "ID do produto inválido.";
+            return false;
         }
         if (qtdeProduto < 0) {
-            return "A quantidade do produto não pode ser menor que zero.";
+            return false;
         }
         if (valorUnit < 0) {
-            return "O valor unitário não pode ser menor que zero.";
+            return false;
         }
 
         CompraProduto compraProduto = new CompraProduto();
+    compraProduto.setId(id);
         compraProduto.setIdCompra(compraId);
         compraProduto.setIdProduto(produtoId);
         compraProduto.setQtdeProduto(qtdeProduto);
         compraProduto.setValorUnit(valorUnit);
 
-        boolean salvo = compraProdutoDao.salvar(compraProduto);
-        if (!salvo) {
-            return "Erro ao salvar relação compra-produto no banco de dados.";
-        }
-
-        return null;
+        return compraProdutoDao.salvar(compraProduto);
     }
 
-    public String excluirCompraProduto(int id) {
+    public boolean excluirCompraProduto(int id) {
         if (id <= 0) {
-            return "ID da relação compra-produto inválido.";
+            return false;
         }
 
-        boolean excluido = compraProdutoDao.excluir(id, null);
-        if (!excluido) {
-            return "Erro ao excluir relação compra-produto do banco de dados.";
-        }
-
-        return null;
+        return compraProdutoDao.excluir(id, null);
     }
 
     public List<CompraProduto> listarCompraProdutos() {

@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,31 +12,24 @@ import com.luan.vendas.model.Cliente;
 public class ClienteDao {
 
     public boolean salvar(Cliente cliente) {
-        String sql = "INSERT INTO tcliente (nome_cliente, cpf_cliente, rg_cliente, endereco_cliente, telefone_cliente) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO tcliente (id_cliente, nome_cliente, cpf_cliente, rg_cliente, endereco_cliente, telefone_cliente) VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = Postgres.conectar();
-             PreparedStatement ps = conn != null
-                     ? conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
-                     : null) {
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
 
             if (ps == null) {
                 return false;
             }
 
-            ps.setString(1, cliente.getNome());
-            ps.setString(2, cliente.getCpf());
-            ps.setString(3, cliente.getRg());
-            ps.setString(4, cliente.getEndereco());
-            ps.setString(5, cliente.getTelefone());
+            ps.setInt(1, cliente.getId());
+            ps.setString(2, cliente.getNome());
+            ps.setString(3, cliente.getCpf());
+            ps.setString(4, cliente.getRg());
+            ps.setString(5, cliente.getEndereco());
+            ps.setString(6, cliente.getTelefone());
 
             int linhasAfetadas = ps.executeUpdate();
-            if (linhasAfetadas > 0) {
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    cliente.setId(rs.getInt(1));
-                }
-                return true;
-            }
+            return linhasAfetadas > 0;
         } catch (SQLException e) {
             System.out.println("Erro ao salvar cliente: " + e.getMessage());
         }

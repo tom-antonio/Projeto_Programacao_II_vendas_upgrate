@@ -11,6 +11,17 @@ public class ProdutoVenda {
     public ProdutoVenda() {
     }
 
+    public ProdutoVenda(int idProduto, int qtdeProduto) {
+        this.idProduto = idProduto;
+        this.qtdeProduto = qtdeProduto;
+    }
+
+    public ProdutoVenda(int idProduto, int qtdeProduto, double valorUnit) {
+        this.idProduto = idProduto;
+        this.qtdeProduto = qtdeProduto;
+        this.valorUnit = valorUnit;
+    }
+
     public ProdutoVenda(int id, int idVenda, int idProduto, int qtdeProduto, double valorUnit) {
         this.id = id;
         this.idVenda = idVenda;

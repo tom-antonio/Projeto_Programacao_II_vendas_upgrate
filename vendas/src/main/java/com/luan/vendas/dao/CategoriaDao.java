@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,27 +12,20 @@ import com.luan.vendas.model.Categoria;
 public class CategoriaDao {
 
     	public boolean salvar(Categoria categoria) {
-			String sql = "INSERT INTO tcategoria (nome_categoria) VALUES (?)";
+			String sql = "INSERT INTO tcategoria (id_categoria, nome_categoria) VALUES (?, ?)";
 
 		try (Connection conn = Postgres.conectar();
-				 PreparedStatement ps = conn != null
-						 ? conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
-						 : null) {
+				 PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
 
 			if (ps == null) {
 				return false;
 			}
 
-			ps.setString(1, categoria.getNome());
+			ps.setInt(1, categoria.getId());
+			ps.setString(2, categoria.getNome());
 
 			int linhasAfetadas = ps.executeUpdate();
-			if (linhasAfetadas > 0) {
-				ResultSet rs = ps.getGeneratedKeys();
-				if (rs.next()) {
-					categoria.setId(rs.getInt(1));
-				}
-				return true;
-			}
+			return linhasAfetadas > 0;
 		} catch (SQLException e) {
 			System.out.println("Erro ao salvar categoria: " + e.getMessage());
 		}

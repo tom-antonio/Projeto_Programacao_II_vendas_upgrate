@@ -20,45 +20,48 @@ public class VendaController {
 		this.produtoDao = new ProdutoDao();
 	}
 
-	public String salvarVenda(Date dataVenda, double valorTotal, int clienteId, List<ProdutoVenda> produtosVenda) {
+	public boolean salvarVenda(int id, Date dataVenda, double valorTotal, int clienteId, List<ProdutoVenda> produtosVenda) {
+		if (id <= 0) {
+			return false;
+		}
 		if (dataVenda == null) {
-			return "A data da venda não pode ser vazia.";
+			return false;
 		}
 		if (valorTotal < 0) {
-			return "O valor total da venda não pode ser menor que zero.";
+			return false;
 		}
 		if (clienteId <= 0) {
-			return "ID do cliente inválido.";
+			return false;
 		}
 		if (produtosVenda == null || produtosVenda.isEmpty()) {
-			return "A venda precisa ter pelo menos um produto.";
+			return false;
 		}
 
 		for (ProdutoVenda produtoVenda : produtosVenda) {
 			if (produtoVenda == null) {
-				return "Existe um item de venda inválido.";
+				return false;
 			}
 			if (produtoVenda.getIdProduto() <= 0) {
-				return "ID do produto inválido na venda.";
+				return false;
 			}
 			if (produtoVenda.getQtdeProduto() <= 0) {
-				return "A quantidade do produto na venda deve ser maior que zero.";
+				return false;
 			}
 		}
 
-		String erroEstoque = verificarEstoque(produtosVenda);
-		if (erroEstoque != null) {
-			return erroEstoque;
+		if (!verificarEstoque(produtosVenda)) {
+			return false;
 		}
 
 		if (!alterarEstoque(produtosVenda, -1)) {
-			return "Não foi possível atualizar o estoque dos produtos da venda.";
+			return false;
 		}
 
 		Cliente cliente = new Cliente();
 		cliente.setId(clienteId);
 
 		Venda venda = new Venda();
+		venda.setId(id);
 		venda.setData_venda(dataVenda);
 		venda.setValor_total(valorTotal);
 		venda.setCliente(cliente);
@@ -66,26 +69,37 @@ public class VendaController {
 
 		boolean salvo = vendaDao.salvar(venda);
 		if (!salvo) {
-			return "Erro ao salvar venda no banco de dados.";
+			return false;
 		}
 
-		return null;
+		for (ProdutoVenda pv : produtosVenda) {
+			try {
+				boolean updated = produtoDao.atualizarValorUltimaVenda(pv.getIdProduto(), pv.getValorUnit());
+				if (!updated) {
+					System.out.println("Aviso: não foi possível atualizar valor_ultima_venda para produto " + pv.getIdProduto());
+				}
+			} catch (Exception e) {
+				System.out.println("Erro ao atualizar valor_ultima_venda: " + e.getMessage());
+			}
+		}
+
+		return true;
 	}
 
-	private String verificarEstoque(List<ProdutoVenda> produtosVenda) {
+	private boolean verificarEstoque(List<ProdutoVenda> produtosVenda) {
 		for (ProdutoVenda produtoVenda : produtosVenda) {
 			Produto produtoExistente = produtoDao.pesquisar(produtoVenda.getIdProduto());
 			if (produtoExistente == null) {
-				return "Produto não encontrado para a venda.";
+				return false;
 			}
 			if (produtoExistente.getQtde_estoque() < 1) {
-				return "Produto ID " + produtoVenda.getIdProduto() + " sem estoque disponível.";
+				return false;
 			}
 			if (produtoExistente.getQtde_estoque() < produtoVenda.getQtdeProduto()) {
-				return "Estoque insuficiente para o produto ID " + produtoVenda.getIdProduto() + ".";
+				return false;
 			}
 		}
-		return null;
+		return true;
 	}
 
 	private boolean alterarEstoque(List<ProdutoVenda> produtosVenda, int sinal) {
@@ -101,32 +115,32 @@ public class VendaController {
 		return true;
 	}
 
-	public String alterarVenda(int id, Date dataVenda, double valorTotal, int clienteId, List<ProdutoVenda> produtosVenda) {
+	public boolean alterarVenda(int id, Date dataVenda, double valorTotal, int clienteId, List<ProdutoVenda> produtosVenda) {
 		if (id <= 0) {
-			return "ID da venda inválido.";
+			return false;
 		}
 		if (dataVenda == null) {
-			return "A data da venda não pode ser vazia.";
+			return false;
 		}
 		if (valorTotal < 0) {
-			return "O valor total da venda não pode ser menor que zero.";
+			return false;
 		}
 		if (clienteId <= 0) {
-			return "ID do cliente inválido.";
+			return false;
 		}
 		if (produtosVenda == null || produtosVenda.isEmpty()) {
-			return "A venda precisa ter pelo menos um produto.";
+			return false;
 		}
 
 		for (ProdutoVenda produtoVenda : produtosVenda) {
 			if (produtoVenda == null) {
-				return "Existe um item de venda inválido.";
+				return false;
 			}
 			if (produtoVenda.getIdProduto() <= 0) {
-				return "ID do produto inválido na venda.";
+				return false;
 			}
 			if (produtoVenda.getQtdeProduto() <= 0) {
-				return "A quantidade do produto na venda deve ser maior que zero.";
+				return false;
 			}
 		}
 
@@ -140,24 +154,15 @@ public class VendaController {
 		venda.setCliente(cliente);
 		venda.setProdutosVenda(produtosVenda);
 
-		boolean alterado = vendaDao.alterar(venda);
-		if (!alterado) {
-			return "Erro ao alterar venda no banco de dados.";
-		}
-		return null;
+		return vendaDao.alterar(venda);
 	}
 
-	public String excluirVenda(int id) {
+	public boolean excluirVenda(int id) {
 		if (id <= 0) {
-			return "ID da venda inválido.";
+			return false;
 		}
 
-		boolean excluido = vendaDao.excluir(id);
-		if (!excluido) {
-			return "Erro ao excluir venda do banco de dados.";
-		}
-
-		return null;
+		return vendaDao.excluir(id);
 	}
 
     public Venda pesquisarVenda(int id) {

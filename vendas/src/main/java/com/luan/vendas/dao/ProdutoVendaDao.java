@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,23 +25,18 @@ public class ProdutoVendaDao {
     }
 
     boolean inserir(Connection conn, ProdutoVenda produtoVenda) throws SQLException {
-        String sql = "INSERT INTO tprod_venda (fk_venda, fk_produto, qtde_prodvenda) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO tprod_venda (id_prodvenda, fk_venda, fk_produto, qtde_prodvenda, valor_unit) VALUES (?, ?, ?, ?, ?)";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setInt(1, produtoVenda.getIdVenda());
-            ps.setInt(2, produtoVenda.getIdProduto());
-            ps.setInt(3, produtoVenda.getQtdeProduto());
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, produtoVenda.getId());
+            ps.setInt(2, produtoVenda.getIdVenda());
+            ps.setInt(3, produtoVenda.getIdProduto());
+            ps.setInt(4, produtoVenda.getQtdeProduto());
+            ps.setDouble(5, produtoVenda.getValorUnit());
 
             int linhasAfetadas = ps.executeUpdate();
-            if (linhasAfetadas > 0) {
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    produtoVenda.setId(rs.getInt(1));
-                }
-                return true;
-            }
+            return linhasAfetadas > 0;
         }
-        return false;
     }
 
     public List<ProdutoVenda> listarTodos() {

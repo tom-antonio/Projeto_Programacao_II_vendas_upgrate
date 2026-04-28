@@ -10,56 +10,55 @@ public class ClienteController {
         this.clienteDao = new ClienteDao();
     }
     
-    public String salvarCliente ( String nome, String cpf, String rg, String endereco,String telefone) {
+    public boolean salvarCliente(int id, String nome, String cpf, String rg, String endereco,String telefone) {
+        if (id <= 0) {
+            return false;
+        }
         if (nome == null || nome.trim().isEmpty()) {
-            return "O nome do cliente não pode ser vazio.";
+            return false;
         }
         if (cpf == null || cpf.trim().isEmpty()) {
-            return "O CPF do cliente não pode ser vazio.";
+            return false;
         }
         if (rg == null || rg.trim().isEmpty()) {
-            return "O RG do cliente não pode ser vazio.";
+            return false;
         }
         if (endereco == null || endereco.trim().isEmpty()) {
-            return "O endereço do cliente não pode ser vazio.";
+            return false;
         }
         if (telefone == null || telefone.trim().isEmpty()) {
-            return "O telefone do cliente não pode ser vazio.";
+            return false;
         }
 
         Cliente cliente = new Cliente();
+    cliente.setId(id);
         cliente.setNome(nome);
         cliente.setCpf(cpf);
         cliente.setRg(rg);
         cliente.setEndereco(endereco);
         cliente.setTelefone(telefone);
 
-        boolean salvo = clienteDao.salvar(cliente);
-        if (!salvo) {
-            return "Erro ao salvar cliente no banco de dados.";
-        }
-
-        return null; // null indica sucesso
+        return clienteDao.salvar(cliente);
     }
 
-    public String alterarCliente(int id, String nome, String cpf, String rg, String endereco,String telefone) {
+    public boolean alterarCliente(int id, String nome, String cpf, String rg, String endereco,String telefone) {
         if (id <= 0) {
-            return "ID do cliente inválido.";
+            return false;
         }
         if (nome == null || nome.trim().isEmpty()) {
-            return "O nome do cliente não pode ser vazio.";
+            return false;
         }
         if (cpf == null || cpf.trim().isEmpty()) {
-            return "O CPF do cliente não pode ser vazio.";
+            return false;
         }
         if (rg == null || rg.trim().isEmpty()) {
-            return "O RG do cliente não pode ser vazio.";
+            return false;
         }
         if (endereco == null || endereco.trim().isEmpty()) {
-            return "O endereço do cliente não pode ser vazio.";
+            return false;
         }
         if (telefone == null || telefone.trim().isEmpty()) {
-            return "O telefone do cliente não pode ser vazio.";
+            return false;
         }
 
         Cliente cliente = new Cliente();
@@ -70,25 +69,15 @@ public class ClienteController {
         cliente.setEndereco(endereco);
         cliente.setTelefone(telefone);
 
-        boolean alterado = clienteDao.alterar(cliente);
-        if (!alterado) {
-            return "Erro ao alterar cliente no banco de dados.";
-        }
-
-        return null; // null indica sucesso
+        return clienteDao.alterar(cliente);
     }
 
-    public String excluirCliente(int id) {
+    public boolean excluirCliente(int id) {
         if (id <= 0) {
-            return "ID do cliente inválido.";
+            return false;
         }
 
-        boolean excluido = clienteDao.excluir(id);
-        if (!excluido) {
-            return "Erro ao excluir cliente do banco de dados.";
-        }
-
-        return null; // null indica sucesso
+        return clienteDao.excluir(id);
     }
 
     public Cliente pesquisarCliente(int id) {

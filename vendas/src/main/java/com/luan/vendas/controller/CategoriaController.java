@@ -10,53 +10,42 @@ public class CategoriaController {
         this.categoriaDao = new CategoriaDao();
     }
     
-    public String salvarCategoria (String nome) {
+    public boolean salvarCategoria(int id, String nome) {
+        if (id <= 0) {
+            return false;
+        }
         if (nome == null || nome.trim().isEmpty()) {
-            return "O nome da categoria não pode ser vazio.";
+            return false;
         }
 
         Categoria categoria= new Categoria();
+        categoria.setId(id);
         categoria.setNome(nome);
 
-        boolean salvo = categoriaDao.salvar(categoria);
-        if (!salvo) {
-            return "Erro ao salvar categoria no banco de dados.";
-        }
-
-        return null; // null indica sucesso
+        return categoriaDao.salvar(categoria);
     }
 
-    public String alterarCategoria(int id, String nome) {
+    public boolean alterarCategoria(int id, String nome) {
         if (id <= 0) {
-            return "ID da categoria inválido.";
+            return false;
         }
         if (nome == null || nome.trim().isEmpty()) {
-            return "O nome da categoria não pode ser vazio.";
+            return false;
         }
 
         Categoria categoria = new Categoria();
         categoria.setId(id);
         categoria.setNome(nome);
 
-        boolean alterado = categoriaDao.alterar(categoria);
-        if (!alterado) {
-            return "Erro ao alterar categoria no banco de dados.";
-        }
-
-        return null; // null indica sucesso
+        return categoriaDao.alterar(categoria);
     }
 
-    public String excluirCategoria(int id) {
+    public boolean excluirCategoria(int id) {
         if (id <= 0) {
-            return "ID da categoria inválido.";
+            return false;
         }
 
-        boolean excluido = categoriaDao.excluir(id);
-        if (!excluido) {
-            return "Erro ao excluir categoria do banco de dados.";
-        }
-
-        return null; // null indica sucesso
+        return categoriaDao.excluir(id);
     }
 
     public Categoria pesquisarCategoria(int id) {

@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,27 +12,22 @@ import com.luan.vendas.model.FornecedorProduto;
 public class FornecedorProdutoDao {
 
     public boolean salvar(FornecedorProduto fornecedorProduto) {
-        String sql = "INSERT INTO tprodforne (fk_fornecedor, fk_produto) VALUES (?, ?) "
+        String sql = "INSERT INTO tprodforne (id_fornecedor_produto, fk_fornecedor, fk_produto) VALUES (?, ?, ?) "
             + "ON CONFLICT (fk_fornecedor, fk_produto) DO NOTHING";
 
         try (Connection conn = Postgres.conectar();
-             PreparedStatement ps = conn != null
-                     ? conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
-                     : null) {
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
 
             if (ps == null) {
                 return false;
             }
 
-            ps.setInt(1, fornecedorProduto.getIdFornecedor());
-            ps.setInt(2, fornecedorProduto.getIdProduto());
+            ps.setInt(1, fornecedorProduto.getId());
+            ps.setInt(2, fornecedorProduto.getIdFornecedor());
+            ps.setInt(3, fornecedorProduto.getIdProduto());
 
             int linhasAfetadas = ps.executeUpdate();
             if (linhasAfetadas > 0) {
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    fornecedorProduto.setId(rs.getInt(1));
-                }
                 return true;
             }
 
@@ -47,7 +41,7 @@ public class FornecedorProdutoDao {
 
     public List<FornecedorProduto> listarTodos() {
         List<FornecedorProduto> relacionamentos = new ArrayList<>();
-        String sql = "SELECT id_prod_forne, fk_fornecedor, fk_produto FROM tprodforne ORDER BY fk_fornecedor, fk_produto";
+        String sql = "SELECT id_fornecedor_produto, fk_fornecedor, fk_produto FROM tprodforne ORDER BY fk_fornecedor, fk_produto";
 
         try (Connection conn = Postgres.conectar();
              PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {

@@ -13,37 +13,31 @@ public class FornecedorProdutoController {
 		this.fornecedorProdutoDao = new FornecedorProdutoDao();
 	}
 
-	public String salvarFornecedorProduto(int fornecedorId, int produtoId) {
+	public boolean salvarFornecedorProduto(int id, int fornecedorId, int produtoId) {
+		if (id <= 0) {
+			return false;
+		}
 		if (fornecedorId <= 0) {
-			return "ID do fornecedor inválido.";
+			return false;
 		}
 		if (produtoId <= 0) {
-			return "ID do produto inválido.";
+			return false;
 		}
 
 		FornecedorProduto fornecedorProduto = new FornecedorProduto();
+		fornecedorProduto.setId(id);
 		fornecedorProduto.setIdFornecedor(fornecedorId);
 		fornecedorProduto.setIdProduto(produtoId);
 
-		boolean salvo = fornecedorProdutoDao.salvar(fornecedorProduto);
-		if (!salvo) {
-			return "Erro ao salvar relação fornecedor-produto no banco de dados.";
-		}
-
-		return null;
+		return fornecedorProdutoDao.salvar(fornecedorProduto);
 	}
 
-	public String excluirFornecedorProduto(int id) {
+	public boolean excluirFornecedorProduto(int id) {
 		if (id <= 0) {
-			return "ID da relação fornecedor-produto inválido.";
+			return false;
 		}
 
-		boolean excluido = fornecedorProdutoDao.excluir(id);
-		if (!excluido) {
-			return "Erro ao excluir relação fornecedor-produto do banco de dados.";
-		}
-
-		return null;
+		return fornecedorProdutoDao.excluir(id);
 	}
 
 	public List<FornecedorProduto> listarFornecedorProdutos() {

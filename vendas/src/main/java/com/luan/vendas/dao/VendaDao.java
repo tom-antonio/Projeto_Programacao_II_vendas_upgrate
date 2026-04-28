@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +20,7 @@ public class VendaDao {
     }
 
     public boolean salvar(Venda venda) {
-        String sql = "INSERT INTO tvenda (data_venda, valor_total, id_cliente) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO tvenda (id_venda, data_venda, valor_total, id_cliente) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = Postgres.conectar()) {
             if (conn == null) {
@@ -30,20 +29,16 @@ public class VendaDao {
 
             conn.setAutoCommit(false);
 
-            try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                ps.setDate(1, new java.sql.Date(venda.getData_venda().getTime()));
-                ps.setDouble(2, venda.getValor_total());
-                ps.setInt(3, venda.getCliente().getId());
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, venda.getId());
+                ps.setDate(2, new java.sql.Date(venda.getData_venda().getTime()));
+                ps.setDouble(3, venda.getValor_total());
+                ps.setInt(4, venda.getCliente().getId());
 
                 int linhasAfetadas = ps.executeUpdate();
                 if (linhasAfetadas <= 0) {
                     conn.rollback();
                     return false;
-                }
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    venda.setId(rs.getInt(1));
                 }
 
                 if (venda.getProdutosVenda() != null) {

@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,24 +25,18 @@ public class CompraProdutoDao {
     }
 
     boolean inserir(Connection conn, CompraProduto compraProduto) throws SQLException {
-        String sql = "INSERT INTO tprod_compra (fk_compra, fk_produto, qtde_prodcompra, valor_unit) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO tprod_compra (id_prodcompra, fk_compra, fk_produto, qtde_prodcompra, valor_unit) VALUES (?, ?, ?, ?, ?)";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setInt(1, compraProduto.getIdCompra());
-            ps.setInt(2, compraProduto.getIdProduto());
-            ps.setInt(3, compraProduto.getQtdeProduto());
-            ps.setDouble(4, compraProduto.getValorUnit());
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, compraProduto.getId());
+            ps.setInt(2, compraProduto.getIdCompra());
+            ps.setInt(3, compraProduto.getIdProduto());
+            ps.setInt(4, compraProduto.getQtdeProduto());
+            ps.setDouble(5, compraProduto.getValorUnit());
 
             int linhasAfetadas = ps.executeUpdate();
-            if (linhasAfetadas > 0) {
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    compraProduto.setId(rs.getInt(1));
-                }
-                return true;
-            }
+            return linhasAfetadas > 0;
         }
-        return false;
     }
 
     public List<CompraProduto> listarTodos() {

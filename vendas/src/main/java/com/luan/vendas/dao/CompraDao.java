@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +20,7 @@ public class CompraDao {
     }
 
     public boolean salvar(Compra compra) {
-        String sql = "INSERT INTO tcompra (data_compra, valor_total, id_fornecedor) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO tcompra (id_compra, data_compra, valor_total, id_fornecedor) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = Postgres.conectar()) {
             if (conn == null) {
@@ -30,20 +29,16 @@ public class CompraDao {
 
             conn.setAutoCommit(false);
 
-            try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                ps.setDate(1, new java.sql.Date(compra.getData_compra().getTime()));
-                ps.setDouble(2, compra.getValor_total());
-                ps.setInt(3, compra.getFornecedor().getId());
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, compra.getId());
+                ps.setDate(2, new java.sql.Date(compra.getData_compra().getTime()));
+                ps.setDouble(3, compra.getValor_total());
+                ps.setInt(4, compra.getFornecedor().getId());
 
                 int linhasAfetadas = ps.executeUpdate();
                 if (linhasAfetadas <= 0) {
                     conn.rollback();
                     return false;
-                }
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    compra.setId(rs.getInt(1));
                 }
 
                 if (compra.getCompraProdutos() != null) {

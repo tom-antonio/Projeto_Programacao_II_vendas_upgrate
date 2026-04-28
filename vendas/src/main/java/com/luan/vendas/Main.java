@@ -1,6 +1,5 @@
 package com.luan.vendas;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -17,7 +16,6 @@ import com.luan.vendas.model.ProdutoVenda;
 public class Main {
 
     public static void main(String[] args) {
-
         CategoriaController categoriaController = new CategoriaController();
         ClienteController clienteController = new ClienteController();
         FornecedorController fornecedorController = new FornecedorController();
@@ -26,73 +24,70 @@ public class Main {
         ProdutoController produtoController = new ProdutoController();
         VendaController vendaController = new VendaController();
 
-        // 1. Inserir Categorias
-        System.out.println("=== Inserindo Categorias ===");
-        validar(categoriaController.salvarCategoria("Eletronicos"));
-        validar(categoriaController.salvarCategoria("Eletrodomesticos"));
-        validar(categoriaController.salvarCategoria("Moveis"));
+        categoriaController.salvarCategoria(1, "Bebidas");
+        categoriaController.salvarCategoria(2, "Frutas");
+        categoriaController.salvarCategoria(3, "Laticínios");
 
-        // 2. Inserir Clientes
-        System.out.println("\n=== Inserindo Clientes ===");
-        validar(clienteController.salvarCliente("Joao Silva", "123.456.789-00", "MG-12.345.678", "Rua A, 123",
-            "(11) 98765-4321"));
-        validar(clienteController.salvarCliente("Maria Souza", "987.654.321-00", "SP-87.654.321", "Avenida B, 456",
-            "(21) 91234-5678"));
+        clienteController.salvarCliente(1, "João Silva", "111.222.333-44", "5522113", "Rua Minas Gerais, 123", "649999-5555");
+        clienteController.salvarCliente(2, "Maria Oliveira", "555.666.777-88", "5522444", "Avenida Brasil, 456", "649999-6666");
+        clienteController.salvarCliente(3, "Carlos Pereira", "999.000.111-22", "5522777", "Rua São Paulo, 789", "649999-7777");
 
-        // 3. Inserir Fornecedores
-        System.out.println("\n=== Inserindo Fornecedores ===");
-        validar(fornecedorController.salvarFornecedor("Tech Supplies", "Tech Supplies LTDA", "12.345.678/0001-99"));
-        validar(fornecedorController.salvarFornecedor("Gadget World", "Gadget World S.A.", "98.765.432/0001-88"));
+        fornecedorController.salvarFornecedor(1, "Coca-Cola", "Coca-Cola Company", "12.345.678/0001-90");
+        fornecedorController.salvarFornecedor(2, "Frutas do Cerrado", "Frutas do Cerrado Ltda", "98.765.432/0001-10");
+        fornecedorController.salvarFornecedor(3, "Laticínios Brasil", "Laticínios Brasil S.A.", "56.789.012/0001-20");
 
-        // 4. Inserir Produtos (com categoria existente)
-        System.out.println("\n=== Inserindo Produtos ===");
-        validar(produtoController.salvarProduto("Smartphone", 1500.00, 2.0, 1400.00, 1550.00, 1));
-        validar(produtoController.salvarProduto("Notebook", 3500.00, 1.0, 3300.00, 3600.00, 1));
-        validar(produtoController.salvarProduto("Tablet", 1200.00, 3.0, 1100.00, 1250.00, 1));
+        produtoController.salvarProduto(1, "Coca-Cola 2L", 10, 1);
+        produtoController.salvarProduto(2, "Suco de Laranja 1L", 20, 1);
+        produtoController.salvarProduto(3, "Maçã", 50, 2);
+        produtoController.salvarProduto(4, "Banana", 100, 2);
+        produtoController.salvarProduto(5, "Leite Integral 1L", 30, 3);
+        produtoController.salvarProduto(6, "Queijo Mussarela 500g", 15, 3);
 
-        // 5. Vincular Fornecedores aos Produtos
-        System.out.println("\n=== Criando vínculo Fornecedor-Produto ===");
-        validar(fornecedorProdutoController.salvarFornecedorProduto(1, 1));
-        validar(fornecedorProdutoController.salvarFornecedorProduto(1, 2));
-        validar(fornecedorProdutoController.salvarFornecedorProduto(2, 3));
+        fornecedorProdutoController.salvarFornecedorProduto(1, 1, 1);
+        fornecedorProdutoController.salvarFornecedorProduto(2, 1, 2);
+        fornecedorProdutoController.salvarFornecedorProduto(3, 2, 3);
+        fornecedorProdutoController.salvarFornecedorProduto(4, 2, 4);
+        fornecedorProdutoController.salvarFornecedorProduto(5, 3, 5);
+        fornecedorProdutoController.salvarFornecedorProduto(6, 3, 6);
 
-        // 6. Inserir Compra com itens
-        System.out.println("\n=== Criando Compra ===");
-        List<CompraProduto> compraProdutos = new ArrayList<>();
-        compraProdutos.add(new CompraProduto(0, 0, 1, 10, 1400.00));
-        compraProdutos.add(new CompraProduto(0, 0, 3, 5, 1100.00));
+        vendaController.salvarVenda(1, new Date(), 50.0, 1, List.of(
+            new ProdutoVenda(1, 1, 1, 2, 0.0),
+            new ProdutoVenda(2, 1, 3, 5, 0.0)
+        ));
+        vendaController.salvarVenda(2, new Date(), 30.0, 2, List.of(
+            new ProdutoVenda(3, 2, 2, 1, 0.0),
+            new ProdutoVenda(4, 2, 4, 10, 0.0)
+        ));
+        vendaController.salvarVenda(3, new Date(), 40.0, 3, List.of(
+            new ProdutoVenda(5, 3, 5, 3, 0.0),
+            new ProdutoVenda(6, 3, 6, 2, 0.0)
+        ));
+        vendaController.salvarVenda(4, new Date(), 20.0, 1, List.of(
+            new ProdutoVenda(7, 4, 3, 10, 0.0)
+        ));
+        vendaController.salvarVenda(5, new Date(), 60.0, 2, List.of(
+            new ProdutoVenda(8, 5, 1, 4, 0.0),
+            new ProdutoVenda(9, 5, 5, 5, 0.0)
+        ));
 
-        double valorTotalCompra = 0.0;
-        for (CompraProduto item : compraProdutos) {
-            valorTotalCompra += item.getQtdeProduto() * item.getValorUnit();
-        }
-
-        validar(compraController.salvarCompra(new Date(), valorTotalCompra, 1, compraProdutos));
-
-        // 7. Criar venda com produtos (usando IDs que existem no banco)
-        System.out.println("\n=== Criando Venda ===");
-        ProdutoVenda vp1 = new ProdutoVenda(0, 0, 1, 2, 1500.00);
-        ProdutoVenda vp2 = new ProdutoVenda(0, 0, 2, 1, 3500.00);
-        ProdutoVenda vp3 = new ProdutoVenda(0, 0, 3, 3, 1200.00);
-
-        List<ProdutoVenda> vendaProdutos = new ArrayList<>();
-        vendaProdutos.add(vp1);
-        vendaProdutos.add(vp2);
-        vendaProdutos.add(vp3);
-
-        double valorTotal = (vp1.getQtdeProduto() * vp1.getValorUnit())
-                + (vp2.getQtdeProduto() * vp2.getValorUnit())
-                + (vp3.getQtdeProduto() * vp3.getValorUnit());
-
-        // Salvar venda para o primeiro cliente inserido (ID 1)
-        validar(vendaController.salvarVenda(new Date(), valorTotal, 1, vendaProdutos));
-    }
-
-    private static void validar(String erro) {
-        if (erro == null) {
-            return;
-        }
-
-        throw new IllegalStateException(erro);
+        compraController.salvarCompra(1, new Date(), 100.0, 1, List.of(
+            new CompraProduto(1, 1, 1, 20, 5.0),
+            new CompraProduto(2, 1, 2, 30, 2.5)
+        ));
+        compraController.salvarCompra(2, new Date(), 80.0, 2, List.of(
+            new CompraProduto(3, 2, 3, 50, 1.0),
+            new CompraProduto(4, 2, 4, 100, 0.5)
+        ));
+        compraController.salvarCompra(3, new Date(), 120.0, 3, List.of(
+            new CompraProduto(5, 3, 5, 40, 2.0),
+            new CompraProduto(6, 3, 6, 20, 4.0)
+        ));
+        compraController.salvarCompra(4, new Date(), 60.0, 1, List.of(
+            new CompraProduto(7, 4, 1, 10, 5.0)
+        ));
+        compraController.salvarCompra(5, new Date(), 90.0, 2, List.of(
+            new CompraProduto(8, 5, 3, 30, 1.0),
+            new CompraProduto(9, 5, 4, 50, 0.5)
+        ));
     }
 }

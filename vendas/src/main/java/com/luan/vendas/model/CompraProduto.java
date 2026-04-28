@@ -11,6 +11,17 @@ public class CompraProduto {
     public CompraProduto() {
     }
 
+    public CompraProduto(int idProduto, int qtdeProduto) {
+        this.idProduto = idProduto;
+        this.qtdeProduto = qtdeProduto;
+    }
+
+    public CompraProduto(int idProduto, int qtdeProduto, double valorUnit) {
+        this.idProduto = idProduto;
+        this.qtdeProduto = qtdeProduto;
+        this.valorUnit = valorUnit;
+    }
+
     public CompraProduto(int id, int idCompra, int idProduto, int qtdeProduto, double valorUnit) {
         this.id = id;
         this.idCompra = idCompra;

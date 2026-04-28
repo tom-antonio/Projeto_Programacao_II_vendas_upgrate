@@ -13,42 +13,18 @@ public class FornecedorController {
 		this.fornecedorDao = new FornecedorDao();
 	}
 
-	public String salvarFornecedor(String nomeFantasia, String razaoSocial, String cnpj) {
-		if (nomeFantasia == null || nomeFantasia.trim().isEmpty()) {
-			return "O nome fantasia do fornecedor não pode ser vazio.";
-		}
-		if (razaoSocial == null || razaoSocial.trim().isEmpty()) {
-			return "A razão social do fornecedor não pode ser vazia.";
-		}
-		if (cnpj == null || cnpj.trim().isEmpty()) {
-			return "O CNPJ do fornecedor não pode ser vazio.";
-		}
-
-		Fornecedor fornecedor = new Fornecedor();
-		fornecedor.setNome_fantasia(nomeFantasia);
-		fornecedor.setRazao_social(razaoSocial);
-		fornecedor.setCnpj(cnpj);
-
-		boolean salvo = fornecedorDao.salvar(fornecedor);
-		if (!salvo) {
-			return "Erro ao salvar fornecedor no banco de dados.";
-		}
-
-		return null;
-	}
-
-	public String alterarFornecedor(int id, String nomeFantasia, String razaoSocial, String cnpj) {
+	public boolean salvarFornecedor(int id, String nomeFantasia, String razaoSocial, String cnpj) {
 		if (id <= 0) {
-			return "ID do fornecedor inválido.";
+			return false;
 		}
 		if (nomeFantasia == null || nomeFantasia.trim().isEmpty()) {
-			return "O nome fantasia do fornecedor não pode ser vazio.";
+			return false;
 		}
 		if (razaoSocial == null || razaoSocial.trim().isEmpty()) {
-			return "A razão social do fornecedor não pode ser vazia.";
+			return false;
 		}
 		if (cnpj == null || cnpj.trim().isEmpty()) {
-			return "O CNPJ do fornecedor não pode ser vazio.";
+			return false;
 		}
 
 		Fornecedor fornecedor = new Fornecedor();
@@ -57,25 +33,38 @@ public class FornecedorController {
 		fornecedor.setRazao_social(razaoSocial);
 		fornecedor.setCnpj(cnpj);
 
-		boolean alterado = fornecedorDao.alterar(fornecedor);
-		if (!alterado) {
-			return "Erro ao alterar fornecedor no banco de dados.";
-		}
-
-		return null;
+		return fornecedorDao.salvar(fornecedor);
 	}
 
-	public String excluirFornecedor(int id) {
+	public boolean alterarFornecedor(int id, String nomeFantasia, String razaoSocial, String cnpj) {
 		if (id <= 0) {
-			return "ID do fornecedor inválido.";
+			return false;
+		}
+		if (nomeFantasia == null || nomeFantasia.trim().isEmpty()) {
+			return false;
+		}
+		if (razaoSocial == null || razaoSocial.trim().isEmpty()) {
+			return false;
+		}
+		if (cnpj == null || cnpj.trim().isEmpty()) {
+			return false;
 		}
 
-		boolean excluido = fornecedorDao.excluir(id);
-		if (!excluido) {
-			return "Erro ao excluir fornecedor do banco de dados.";
+		Fornecedor fornecedor = new Fornecedor();
+		fornecedor.setId(id);
+		fornecedor.setNome_fantasia(nomeFantasia);
+		fornecedor.setRazao_social(razaoSocial);
+		fornecedor.setCnpj(cnpj);
+
+		return fornecedorDao.alterar(fornecedor);
+	}
+
+	public boolean excluirFornecedor(int id) {
+		if (id <= 0) {
+			return false;
 		}
 
-		return null;
+		return fornecedorDao.excluir(id);
 	}
 
 	public List<Fornecedor> listarFornecedores() {

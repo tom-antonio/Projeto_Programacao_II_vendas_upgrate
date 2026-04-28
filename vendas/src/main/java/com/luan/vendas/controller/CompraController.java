@@ -20,45 +20,48 @@ public class CompraController {
         this.produtoDao = new ProdutoDao();
     }
 
-    public String salvarCompra(Date dataCompra, double valorTotal, int fornecedorId, List<CompraProduto> compraProdutos) {
+    public boolean salvarCompra(int id, Date dataCompra, double valorTotal, int fornecedorId, List<CompraProduto> compraProdutos) {
+        if (id <= 0) {
+            return false;
+        }
         if (dataCompra == null) {
-            return "A data da compra não pode ser vazia.";
+            return false;
         }
         if (valorTotal < 0) {
-            return "O valor total da compra não pode ser menor que zero.";
+            return false;
         }
         if (fornecedorId <= 0) {
-            return "ID do fornecedor inválido.";
+            return false;
         }
         if (compraProdutos == null || compraProdutos.isEmpty()) {
-            return "A compra precisa ter pelo menos um produto.";
+            return false;
         }
 
         for (CompraProduto compraProduto : compraProdutos) {
             if (compraProduto == null) {
-                return "Existe um item de compra inválido.";
+                return false;
             }
             if (compraProduto.getIdProduto() <= 0) {
-                return "ID do produto inválido na compra.";
+                return false;
             }
             if (compraProduto.getQtdeProduto() <= 0) {
-                return "A quantidade do produto na compra deve ser maior que zero.";
+                return false;
             }
         }
 
-        String erroEstoque = verificarEstoque(compraProdutos);
-        if (erroEstoque != null) {
-            return erroEstoque;
+        if (!verificarEstoque(compraProdutos)) {
+            return false;
         }
 
         if (!atualizarEstoque(compraProdutos, 1)) {
-            return "Não foi possível atualizar o estoque dos produtos da compra.";
+            return false;
         }
 
         Fornecedor fornecedor = new Fornecedor();
         fornecedor.setId(fornecedorId);
 
         Compra compra = new Compra();
+        compra.setId(id);
         compra.setData_compra(dataCompra);
         compra.setValor_total(valorTotal);
         compra.setFornecedor(fornecedor);
@@ -67,21 +70,36 @@ public class CompraController {
         boolean salvo = compraDao.salvar(compra);
         if (!salvo) {
             atualizarEstoque(compraProdutos, -1);
-            return "Erro ao salvar compra no banco de dados.";
+            return false;
         }
 
-        return null;
-    }
-
-    private String verificarEstoque(List<CompraProduto> compraProdutos) {
-        for (CompraProduto compraProduto : compraProdutos) {
-            Produto produtoExistente = produtoDao.pesquisar(compraProduto.getIdProduto());
-            if (produtoExistente == null) {
-                return "Produto não encontrado para a compra.";
+        for (CompraProduto cp : compraProdutos) {
+            try {
+                boolean valorUltimaCompra = produtoDao.atualizarValorUltimaCompra(cp.getIdProduto(), cp.getValorUnit());
+                if (!valorUltimaCompra) {
+                    System.out.println("Aviso: não foi possível atualizar valor_ultima_compra para produto " + cp.getIdProduto());
+                }
+                boolean precoMedio = produtoDao.atualizarPrecoMedio(cp.getIdProduto());
+                if (!precoMedio) {
+                    System.out.println("Aviso: não foi possível atualizar preco_medio para produto " + cp.getIdProduto());
+                }
+            } catch (Exception e) {
+                System.out.println("Erro ao atualizar valor_ultima_compra: " + e.getMessage());
             }
         }
 
-        return null;
+        return true;
+    }
+
+    private boolean verificarEstoque(List<CompraProduto> compraProdutos) {
+        for (CompraProduto compraProduto : compraProdutos) {
+            Produto produtoExistente = produtoDao.pesquisar(compraProduto.getIdProduto());
+            if (produtoExistente == null) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private boolean atualizarEstoque(List<CompraProduto> compraProdutos, int sinal) {
@@ -98,32 +116,32 @@ public class CompraController {
         return true;
     }
 
-    public String alterarCompra(int id, Date dataCompra, double valorTotal, int fornecedorId, List<CompraProduto> compraProdutos) {
+    public boolean alterarCompra(int id, Date dataCompra, double valorTotal, int fornecedorId, List<CompraProduto> compraProdutos) {
         if (id <= 0) {
-            return "ID da compra inválido.";
+            return false;
         }
         if (dataCompra == null) {
-            return "A data da compra não pode ser vazia.";
+            return false;
         }
         if (valorTotal < 0) {
-            return "O valor total da compra não pode ser menor que zero.";
+            return false;
         }
         if (fornecedorId <= 0) {
-            return "ID do fornecedor inválido.";
+            return false;
         }
         if (compraProdutos == null || compraProdutos.isEmpty()) {
-            return "A compra precisa ter pelo menos um produto.";
+            return false;
         }
 
         for (CompraProduto compraProduto : compraProdutos) {
             if (compraProduto == null) {
-                return "Existe um item de compra inválido.";
+                return false;
             }
             if (compraProduto.getIdProduto() <= 0) {
-                return "ID do produto inválido na compra.";
+                return false;
             }
             if (compraProduto.getQtdeProduto() <= 0) {
-                return "A quantidade do produto na compra deve ser maior que zero.";
+                return false;
             }
         }
 
@@ -139,23 +157,18 @@ public class CompraController {
 
         boolean alterado = compraDao.alterar(compra);
         if (!alterado) {
-            return "Erro ao alterar compra no banco de dados.";
+            return false;
         }
 
-        return null;
+        return true;
     }
 
-    public String excluirCompra(int id) {
+    public boolean excluirCompra(int id) {
         if (id <= 0) {
-            return "ID da compra inválido.";
+            return false;
         }
 
-        boolean excluido = compraDao.excluir(id);
-        if (!excluido) {
-            return "Erro ao excluir compra do banco de dados.";
-        }
-
-        return null;
+        return compraDao.excluir(id);
     }
 
     public Compra pesquisarCompra(int id) {

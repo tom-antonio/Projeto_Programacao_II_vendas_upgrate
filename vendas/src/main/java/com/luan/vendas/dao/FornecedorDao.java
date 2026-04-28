@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,29 +12,22 @@ import com.luan.vendas.model.Fornecedor;
 public class FornecedorDao {
 
     public boolean salvar(Fornecedor fornecedor) {
-        String sql = "INSERT INTO tfornecedor (nome_fornecedor, razao_fornecedor, cnpj_fornecedor) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO tfornecedor (id_fornecedor, nome_fornecedor, razao_fornecedor, cnpj_fornecedor) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = Postgres.conectar();
-             PreparedStatement ps = conn != null
-                     ? conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
-                     : null) {
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
 
             if (ps == null) {
                 return false;
             }
 
-            ps.setString(1, fornecedor.getNome_fantasia());
-            ps.setString(2, fornecedor.getRazao_social());
-            ps.setString(3, fornecedor.getCnpj());
+            ps.setInt(1, fornecedor.getId());
+            ps.setString(2, fornecedor.getNome_fantasia());
+            ps.setString(3, fornecedor.getRazao_social());
+            ps.setString(4, fornecedor.getCnpj());
 
             int linhasAfetadas = ps.executeUpdate();
-            if (linhasAfetadas > 0) {
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    fornecedor.setId(rs.getInt(1));
-                }
-                return true;
-            }
+            return linhasAfetadas > 0;
         } catch (SQLException e) {
             System.out.println("Erro ao salvar fornecedor: " + e.getMessage());
         }
