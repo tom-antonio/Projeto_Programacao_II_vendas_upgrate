@@ -14,6 +14,7 @@ com/luan/vendas/dao/FornecedorProdutoDao.class
 com/luan/vendas/dao/FornecedorDao.class
 com/luan/vendas/dao/ProdutoDao.class
 com/luan/vendas/model/ProdutoVenda.class
+com/luan/vendas/Main.class
 com/luan/vendas/model/FornecedorProduto.class
 com/luan/vendas/model/Cliente.class
 com/luan/vendas/controller/VendaController.class
@@ -23,7 +24,6 @@ com/luan/vendas/controller/CompraController.class
 com/luan/vendas/controller/ProdutoVendaController.class
 com/luan/vendas/controller/ClienteController.class
 com/luan/vendas/dao/CategoriaDao.class
-com/luan/vendas/App.class
 com/luan/vendas/controller/FornecedorController.class
 com/luan/vendas/dao/CompraProdutoDao.class
 com/luan/vendas/model/Fornecedor.class

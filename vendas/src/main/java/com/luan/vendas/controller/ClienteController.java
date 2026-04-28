@@ -1,6 +1,4 @@
 package com.luan.vendas.controller;
-import java.util.List;
-
 import com.luan.vendas.dao.ClienteDao;
 import com.luan.vendas.model.Cliente;
 
@@ -93,8 +91,12 @@ public class ClienteController {
         return null; // null indica sucesso
     }
 
-    public List<Cliente> pesquisarCliente() {
-        return clienteDao.listarTodos();
+    public Cliente pesquisarCliente(int id) {
+        if (id <= 0) {
+            return null;
+        }
+
+        return clienteDao.pesquisar(id);
     }
     
 }

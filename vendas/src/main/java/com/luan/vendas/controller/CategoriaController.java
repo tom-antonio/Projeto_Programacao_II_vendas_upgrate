@@ -1,6 +1,4 @@
 package com.luan.vendas.controller;
-import java.util.List;
-
 import com.luan.vendas.dao.CategoriaDao;
 import com.luan.vendas.model.Categoria;
 
@@ -61,7 +59,11 @@ public class CategoriaController {
         return null; // null indica sucesso
     }
 
-    public List<Categoria> pesquisarCategoria() {
-        return categoriaDao.listarTodos();
+    public Categoria pesquisarCategoria(int id) {
+        if (id <= 0) {
+            return null;
+        }
+
+        return categoriaDao.pesquisar(id);
     }
 }

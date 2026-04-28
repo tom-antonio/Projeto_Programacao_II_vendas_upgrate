@@ -201,4 +201,46 @@ public class VendaDao {
             return false;
         }
     }
+
+    public Venda pesquisar(int id_venda) {
+        String sql = "SELECT v.id_venda, v.data_venda, v.valor_total, "
+                + "c.id_cliente, c.nome_cliente, c.cpf_cliente, c.rg_cliente, c.endereco_cliente, c.telefone_cliente "
+                + "FROM tvenda v "
+                + "JOIN tcliente c ON c.id_cliente = v.id_cliente "
+                + "WHERE v.id_venda = ?";
+
+        try (Connection conn = Postgres.conectar();
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
+
+            if (ps == null) {
+                return null;
+            }
+
+            ps.setInt(1, id_venda);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Cliente cliente = new Cliente(
+                            rs.getInt("id_cliente"),
+                            rs.getString("nome_cliente"),
+                            rs.getString("cpf_cliente"),
+                            rs.getString("rg_cliente"),
+                            rs.getString("endereco_cliente"),
+                            rs.getString("telefone_cliente")
+                    );
+
+                    return new Venda(
+                            rs.getInt("id_venda"),
+                            rs.getDate("data_venda"),
+                            rs.getDouble("valor_total"),
+                            cliente,
+                            produtoVendaDao.listarPorVendaId(rs.getInt("id_venda"))
+                    );
+                }
+            }
+            return null;
+        } catch (SQLException e) {
+            System.out.println("Erro ao pesquisar venda: " + e.getMessage());
+            return null;
+        }
+    }
 }

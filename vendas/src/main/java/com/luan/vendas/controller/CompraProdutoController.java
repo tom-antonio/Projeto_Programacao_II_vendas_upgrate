@@ -57,4 +57,12 @@ public class CompraProdutoController {
     public List<CompraProduto> listarCompraProdutos() {
         return compraProdutoDao.listarTodos();
     }
+
+    public CompraProduto pesquisarCompraProduto(int id) {
+        if (id <= 0) {
+            return null;
+        }
+
+        return compraProdutoDao.pesquisar(id);
+    }
 }

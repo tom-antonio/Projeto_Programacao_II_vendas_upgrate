@@ -202,4 +202,47 @@ public class CompraDao {
             return false;
         }
     }
+
+    public Compra pesquisar(int id_compra) {
+        String sql = "SELECT c.id_compra, c.data_compra, c.valor_total, "
+            + "f.id_fornecedor, "
+            + "f.nome_fornecedor AS nome_fantasia, "
+            + "f.razao_fornecedor AS razao_social, "
+            + "f.cnpj_fornecedor AS cnpj "
+                + "FROM tcompra c "
+                + "JOIN tfornecedor f ON f.id_fornecedor = c.id_fornecedor "
+                + "WHERE c.id_compra = ?";
+
+        try (Connection conn = Postgres.conectar();
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
+
+            if (ps == null) {
+                return null;
+            }
+
+            ps.setInt(1, id_compra);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Fornecedor fornecedor = new Fornecedor(
+                            rs.getInt("id_fornecedor"),
+                            rs.getString("nome_fantasia"),
+                            rs.getString("razao_social"),
+                            rs.getString("cnpj")
+                    );
+
+                    return new Compra(
+                            rs.getInt("id_compra"),
+                            rs.getDate("data_compra"),
+                            rs.getDouble("valor_total"),
+                            fornecedor,
+                            compraProdutoDao.listarPorCompraId(rs.getInt("id_compra"))
+                    );
+                }
+            }
+            return null;
+        } catch (SQLException e) {
+            System.out.println("Erro ao pesquisar compra: " + e.getMessage());
+            return null;
+        }
+    }
 }

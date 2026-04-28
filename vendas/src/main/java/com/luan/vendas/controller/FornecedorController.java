@@ -81,4 +81,12 @@ public class FornecedorController {
 	public List<Fornecedor> listarFornecedores() {
 		return fornecedorDao.listarTodos();
 	}
+
+	public Fornecedor pesquisarFornecedor(int id) {
+		if (id <= 0) {
+			return null;
+		}
+
+		return fornecedorDao.pesquisar(id);
+	}
 }

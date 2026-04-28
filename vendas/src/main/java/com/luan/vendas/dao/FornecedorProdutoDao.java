@@ -90,4 +90,30 @@ public class FornecedorProdutoDao {
         }
         return false;
     }
+
+    public FornecedorProduto pesquisar(int id_fornecedor_produto) {
+        String sql = "SELECT id_fornecedor_produto, fk_fornecedor, fk_produto FROM tprodforne WHERE id_fornecedor_produto = ?";
+        try (Connection conn = Postgres.conectar();
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
+
+            if (ps == null) {
+                return null;
+            }
+
+            ps.setInt(1, id_fornecedor_produto);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new FornecedorProduto(
+                        rs.getInt("id_fornecedor_produto"),
+                        rs.getInt("fk_fornecedor"),
+                        rs.getInt("fk_produto")
+                    );
+                }
+            }
+            return null;
+        } catch (SQLException e) {
+            System.out.println("Erro ao pesquisar relação fornecedor-produto: " + e.getMessage());
+            return null;
+        }
+    }
 }

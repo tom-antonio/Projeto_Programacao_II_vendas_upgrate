@@ -119,7 +119,11 @@ public class CompraController {
         return null;
     }
 
-    public List<Compra> pesquisarCompra() {
-        return compraDao.listarTodos();
+    public Compra pesquisarCompra(int id) {
+        if (id <= 0) {
+            return null;
+        }
+
+        return compraDao.pesquisar(id);
     }
 }

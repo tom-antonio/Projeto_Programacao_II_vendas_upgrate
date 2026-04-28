@@ -57,4 +57,12 @@ public class ProdutoVendaController {
     public List<ProdutoVenda> listarProdutoVendas() {
         return produtoVendaDao.listarTodos();
     }
+
+    public ProdutoVenda pesquisarProdutoVenda(int id) {
+        if (id <= 0) {
+            return null;
+        }
+
+        return produtoVendaDao.pesquisar(id);
+    }
 }

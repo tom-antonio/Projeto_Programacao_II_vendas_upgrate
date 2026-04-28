@@ -111,4 +111,31 @@ public class FornecedorDao {
         }
         return false;
     }
+
+    public Fornecedor pesquisar(int id_fornecedor) {
+        String sql = "SELECT id_fornecedor, nome_fornecedor, razao_fornecedor, cnpj_fornecedor FROM tfornecedor WHERE id_fornecedor = ?";
+        try (Connection conn = Postgres.conectar();
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
+
+            if (ps == null) {
+                return null;
+            }
+
+            ps.setInt(1, id_fornecedor);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Fornecedor(
+                        rs.getInt("id_fornecedor"),
+                        rs.getString("nome_fornecedor"),
+                        rs.getString("razao_fornecedor"),
+                        rs.getString("cnpj_fornecedor")
+                    );
+                }
+            }
+            return null;
+        } catch (SQLException e) {
+            System.out.println("Erro ao pesquisar fornecedor: " + e.getMessage());
+            return null;
+        }
+    }
 }

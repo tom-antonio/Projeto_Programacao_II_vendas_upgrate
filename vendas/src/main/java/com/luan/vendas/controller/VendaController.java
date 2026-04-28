@@ -119,7 +119,11 @@ public class VendaController {
 		return null;
 	}
 
-	public List<Venda> pesquisarVenda() {
-		return vendaDao.listarTodos();
+    public Venda pesquisarVenda(int id) {
+		if (id <= 0) {
+			return null;
+		}
+
+		return vendaDao.pesquisar(id);
 	}
 }

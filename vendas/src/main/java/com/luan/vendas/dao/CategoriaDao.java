@@ -106,4 +106,29 @@ public class CategoriaDao {
 		return false;
 	}
 
+	public Categoria pesquisar(int id_categoria) {
+		String sql = "SELECT id_categoria, nome_categoria FROM tcategoria WHERE id_categoria = ?";
+		try (Connection conn = Postgres.conectar();
+			 PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
+
+			if (ps == null) {
+				return null;
+			}
+
+			ps.setInt(1, id_categoria);
+			try (ResultSet rs = ps.executeQuery()) {
+				if (rs.next()) {
+					return new Categoria(
+						rs.getInt("id_categoria"),
+						rs.getString("nome_categoria")
+					);
+				}
+			}
+			return null;
+		} catch (SQLException e) {
+			System.out.println("Erro ao pesquisar categoria: " + e.getMessage());
+			return null;
+		}
+	}
+
 }

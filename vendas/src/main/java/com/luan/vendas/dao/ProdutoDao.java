@@ -48,11 +48,11 @@ public class ProdutoDao {
 
     public List<Produto> listarTodos() {
         List<Produto> produtos = new ArrayList<>();
-        String sql = "SELECT p.id_produto, p.nome_produto, p.preco_produto, p.qtde_estoque, "
-                + "c.id_categoria, c.nome_categoria "
-                + "FROM tproduto p "
-                + "JOIN tcategoria c ON c.id_categoria = p.fk_produto_categoria "
-                + "ORDER BY p.nome_produto";
+        String sql = "SELECT p.id_produto, p.nome_produto, p.preco_medio, p.qtde_estoque, p.valor_ultima_compra, p.valor_ultima_venda, "
+            + "c.id_categoria, c.nome_categoria "
+            + "FROM tproduto p "
+            + "JOIN tcategoria c ON c.id_categoria = p.fk_produto_categoria "
+            + "ORDER BY p.nome_produto";
 
         try (Connection conn = Postgres.conectar();
              PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
@@ -71,10 +71,10 @@ public class ProdutoDao {
                 Produto produto = new Produto(
                         rs.getInt("id_produto"),
                         rs.getString("nome_produto"),
-                        rs.getDouble("preco_produto"),
+                        rs.getDouble("preco_medio"),
                         rs.getDouble("qtde_estoque"),
-                        rs.getDouble("valor_compra"),
-                        rs.getDouble("valor_venda"),
+                        rs.getDouble("valor_ultima_compra"),
+                        rs.getDouble("valor_ultima_venda"),
                         categoria
                 );
                 produtos.add(produto);
@@ -86,7 +86,7 @@ public class ProdutoDao {
     }
 
     public boolean alterar(Produto produto) {
-        String sql = "UPDATE tproduto SET nome_produto = ?, preco_produto = ?, qtde_estoque = ?, valor_compra = ?, valor_venda = ?, fk_produto_categoria = ? WHERE id_produto = ?";
+        String sql = "UPDATE tproduto SET nome_produto = ?, preco_medio = ?, qtde_estoque = ?, valor_ultima_compra = ?, valor_ultima_venda = ?, fk_produto_categoria = ? WHERE id_produto = ?";
 
         try (Connection conn = Postgres.conectar();
              PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
@@ -131,12 +131,53 @@ public class ProdutoDao {
         return false;
     }
 
-    public Produto pesquisar(int id_produto){
-        try {
-            conn = Postgres.conectar();
-            Statement stmt = conn.createStatement();
-            
-        } catch ( e) {
+    public Produto pesquisar(int id_produto) {
+        String sql = "SELECT id_produto, nome_produto, preco_medio, qtde_estoque, valor_ultima_compra, valor_ultima_venda FROM tproduto WHERE id_produto = ?";
+        try (Connection conn = Postgres.conectar();
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
+
+            if (ps == null) {
+                return null;
+            }
+
+            ps.setInt(1, id_produto);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Produto produto = new Produto();
+                    produto.setId(rs.getInt("id_produto"));
+                    produto.setNome(rs.getString("nome_produto"));
+                    produto.setPreco_medio(rs.getDouble("preco_medio"));
+                    produto.setQtde_estoque(rs.getDouble("qtde_estoque"));
+                    produto.setValor_ultima_compra(rs.getDouble("valor_ultima_compra"));
+                    produto.setValor_ultima_venda(rs.getDouble("valor_ultima_venda"));
+                    return produto;
+                }
+            }
+            return null;
+        } catch (SQLException e) {
+            System.out.println("Erro ao pesquisar produto: " + e.getMessage());
+            return null;
         }
+    }
+
+    public boolean atualizarEstoque(Produto produto, int qtde_produto) {
+        String sql = "UPDATE tproduto SET qtde_estoque = qtde_estoque + ? WHERE id_produto = ?";
+
+        try (Connection conn = Postgres.conectar();
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
+
+            if (ps == null) {
+                return false;
+            }
+
+            ps.setInt(1, qtde_produto);
+            ps.setInt(2, produto.getId());
+
+            int linhasAfetadas = ps.executeUpdate();
+            return linhasAfetadas > 0;
+        } catch (SQLException e) {
+            System.out.println("Erro ao atualizar estoque do produto: " + e.getMessage());
+        }
+        return false;
     }
 }

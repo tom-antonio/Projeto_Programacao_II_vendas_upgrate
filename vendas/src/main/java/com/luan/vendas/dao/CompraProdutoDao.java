@@ -132,4 +132,32 @@ public class CompraProdutoDao {
         }
         return relacionamentos;
     }
+
+    public CompraProduto pesquisar(int id_prodcompra) {
+        String sql = "SELECT id_prodcompra, fk_compra, fk_produto, qtde_prodcompra, valor_unit FROM tprod_compra WHERE id_prodcompra = ?";
+        try (Connection conn = Postgres.conectar();
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
+
+            if (ps == null) {
+                return null;
+            }
+
+            ps.setInt(1, id_prodcompra);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new CompraProduto(
+                        rs.getInt("id_prodcompra"),
+                        rs.getInt("fk_compra"),
+                        rs.getInt("fk_produto"),
+                        rs.getInt("qtde_prodcompra"),
+                        rs.getDouble("valor_unit")
+                    );
+                }
+            }
+            return null;
+        } catch (SQLException e) {
+            System.out.println("Erro ao pesquisar relação compra-produto: " + e.getMessage());
+            return null;
+        }
+    }
 }

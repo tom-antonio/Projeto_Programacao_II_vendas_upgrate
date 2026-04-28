@@ -117,4 +117,33 @@ public class ClienteDao {
         }
         return false;
     }
+
+    public Cliente pesquisar(int id_cliente) {
+        String sql = "SELECT id_cliente, nome_cliente, cpf_cliente, rg_cliente, endereco_cliente, telefone_cliente FROM tcliente WHERE id_cliente = ?";
+        try (Connection conn = Postgres.conectar();
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
+
+            if (ps == null) {
+                return null;
+            }
+
+            ps.setInt(1, id_cliente);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Cliente(
+                        rs.getInt("id_cliente"),
+                        rs.getString("nome_cliente"),
+                        rs.getString("cpf_cliente"),
+                        rs.getString("rg_cliente"),
+                        rs.getString("endereco_cliente"),
+                        rs.getString("telefone_cliente")
+                    );
+                }
+            }
+            return null;
+        } catch (SQLException e) {
+            System.out.println("Erro ao pesquisar cliente: " + e.getMessage());
+            return null;
+        }
+    }
 }

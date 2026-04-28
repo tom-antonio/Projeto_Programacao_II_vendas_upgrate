@@ -1,7 +1,5 @@
 package com.luan.vendas.controller;
 
-import java.util.List;
-
 import com.luan.vendas.dao.ProdutoDao;
 import com.luan.vendas.model.Categoria;
 import com.luan.vendas.model.Produto;
@@ -109,11 +107,36 @@ public class ProdutoController {
 		return null;
 	}
 
-	public List<Produto> pesquisarProduto() {
-		return produtoDao.listarTodos();
+	public Produto pesquisarProduto(int id) {
+		if (id <= 0) {
+			return null;
+		}
+
+		return produtoDao.pesquisar(id);
 	}
 
 	public boolean atualizarEstoque(Produto produto, int qtde_produto){
-		Produto produtoExistente = produtoDao.
+		Produto produtoExistente = produtoDao.pesquisar(produto.getId());
+		if (produtoExistente == null) {
+			System.out.println("Produto não encontrado para atualizar estoque.");
+			return false;
+		}
+
+		return produtoDao.atualizarEstoque(produto, qtde_produto);
+	}
+
+	public boolean verificarEstoque(Produto produto, int qtde_produto) {
+		Produto produtoExistente = produtoDao.pesquisar(produto.getId());
+		if (produtoExistente == null) {
+			System.out.println("Produto não encontrado para verificar estoque.");
+			return false;
+		}
+
+		if (produtoExistente.getQtde_estoque() + qtde_produto >= 1) {
+			System.out.println("Quantidade em estoque não pode ser negativa.");
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
