@@ -3,6 +3,7 @@ package com.luan.vendas.controller;
 import java.util.Date;
 import java.util.List;
 
+import com.luan.vendas.dao.ClienteDao;
 import com.luan.vendas.dao.ProdutoDao;
 import com.luan.vendas.dao.VendaDao;
 import com.luan.vendas.model.Cliente;
@@ -14,10 +15,12 @@ public class VendaController {
 
 	private final VendaDao vendaDao;
 	private final ProdutoDao produtoDao;
+	private final ClienteDao clienteDao;
 
 	public VendaController() {
 		this.vendaDao = new VendaDao();
 		this.produtoDao = new ProdutoDao();
+		this.clienteDao = new ClienteDao();
 	}
 
 	public boolean salvarVenda(int id, Date dataVenda, double valorTotal, int clienteId, List<ProdutoVenda> produtosVenda) {
@@ -34,6 +37,16 @@ public class VendaController {
 			return false;
 		}
 		if (produtosVenda == null || produtosVenda.isEmpty()) {
+			return false;
+		}
+
+		Cliente clienteExistente = clienteDao.pesquisar(clienteId);
+		if (clienteExistente == null) {
+			return false;
+		}
+
+		int vendasNoMes = vendaDao.contarVendasPorCpfNoMes(clienteExistente.getCpf(), dataVenda);
+		if (vendasNoMes >= 3) {
 			return false;
 		}
 
@@ -57,14 +70,11 @@ public class VendaController {
 			return false;
 		}
 
-		Cliente cliente = new Cliente();
-		cliente.setId(clienteId);
-
 		Venda venda = new Venda();
 		venda.setId(id);
 		venda.setData_venda(dataVenda);
 		venda.setValor_total(valorTotal);
-		venda.setCliente(cliente);
+		venda.setCliente(clienteExistente);
 		venda.setProdutosVenda(produtosVenda);
 
 		boolean salvo = vendaDao.salvar(venda);
@@ -132,6 +142,11 @@ public class VendaController {
 			return false;
 		}
 
+		Cliente clienteExistente = clienteDao.pesquisar(clienteId);
+		if (clienteExistente == null) {
+			return false;
+		}
+
 		for (ProdutoVenda produtoVenda : produtosVenda) {
 			if (produtoVenda == null) {
 				return false;
@@ -144,14 +159,11 @@ public class VendaController {
 			}
 		}
 
-		Cliente cliente = new Cliente();
-		cliente.setId(clienteId);
-
 		Venda venda = new Venda();
 		venda.setId(id);
 		venda.setData_venda(dataVenda);
 		venda.setValor_total(valorTotal);
-		venda.setCliente(cliente);
+		venda.setCliente(clienteExistente);
 		venda.setProdutosVenda(produtosVenda);
 
 		return vendaDao.alterar(venda);

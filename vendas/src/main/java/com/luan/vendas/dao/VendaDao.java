@@ -4,6 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -237,5 +239,43 @@ public class VendaDao {
             System.out.println("Erro ao pesquisar venda: " + e.getMessage());
             return null;
         }
+    }
+
+    public int contarVendasPorCpfNoMes(String cpf, java.util.Date dataVenda) {
+        String sql = "SELECT COUNT(*) AS total "
+                + "FROM tvenda v "
+                + "JOIN tcliente c ON c.id_cliente = v.id_cliente "
+                + "WHERE c.cpf_cliente = ? "
+                + "AND v.data_venda >= ? "
+                + "AND v.data_venda < ?";
+
+        LocalDate localDate = dataVenda.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate primeiroDiaMes = localDate.withDayOfMonth(1);
+        LocalDate primeiroDiaMesSeguinte = primeiroDiaMes.plusMonths(1);
+
+        java.sql.Date dataInicial = java.sql.Date.valueOf(primeiroDiaMes);
+        java.sql.Date dataFinal = java.sql.Date.valueOf(primeiroDiaMesSeguinte);
+
+        try (Connection conn = Postgres.conectar();
+             PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
+
+            if (ps == null) {
+                return 0;
+            }
+
+            ps.setString(1, cpf);
+            ps.setDate(2, dataInicial);
+            ps.setDate(3, dataFinal);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("total");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao contar vendas por CPF no mês: " + e.getMessage());
+        }
+
+        return 0;
     }
 }
