@@ -5,7 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -241,7 +240,7 @@ public class VendaDao {
         }
     }
 
-    // Método para contar o número de vendas realizadas por um cliente em um determinado mês
+    // Método para contar o número de vendas realizadas por um cliente nos últimos 30 dias
     public int contarVendas(String cpf, java.util.Date dataVenda) {
         String sql = "SELECT COUNT(*) AS total "
                 + "FROM tvenda v "
@@ -250,12 +249,11 @@ public class VendaDao {
                 + "AND v.data_venda >= ? "
                 + "AND v.data_venda < ?";
 
-        LocalDate localDate = dataVenda.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate primeiroDiaMes = localDate.withDayOfMonth(1);
-        LocalDate primeiroDiaMesSeguinte = primeiroDiaMes.plusMonths(1);
+        LocalDate dataFinalLocal = LocalDate.now();
+        LocalDate dataInicialLocal = dataFinalLocal.minusDays(30);
 
-        java.sql.Date dataInicial = java.sql.Date.valueOf(primeiroDiaMes);
-        java.sql.Date dataFinal = java.sql.Date.valueOf(primeiroDiaMesSeguinte);
+        java.sql.Date dataInicial = java.sql.Date.valueOf(dataInicialLocal);
+        java.sql.Date dataFinal = java.sql.Date.valueOf(dataFinalLocal);
 
         try (Connection conn = Postgres.conectar();
              PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
@@ -274,7 +272,7 @@ public class VendaDao {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Erro ao contar vendas por CPF no mês: " + e.getMessage());
+            System.out.println("Erro ao contar vendas por CPF nos últimos 30 dias: " + e.getMessage());
         }
 
         return 0;

@@ -46,7 +46,7 @@ public class VendaController {
 			return false;
 		}
 
-		// Verificar se o cliente já realizou 3 ou mais vendas no mesmo mês
+		// Verificar se o cliente já realizou 3 ou mais vendas nos últimos 30 dias
 		int vendasNoMes = vendaDao.contarVendas(clienteExistente.getCpf(), dataVenda);
 		if (vendasNoMes >= 3) {
 			return false;
