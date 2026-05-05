@@ -241,7 +241,8 @@ public class VendaDao {
         }
     }
 
-    public int contarVendasPorCpfNoMes(String cpf, java.util.Date dataVenda) {
+    // Método para contar o número de vendas realizadas por um cliente em um determinado mês
+    public int contarVendas(String cpf, java.util.Date dataVenda) {
         String sql = "SELECT COUNT(*) AS total "
                 + "FROM tvenda v "
                 + "JOIN tcliente c ON c.id_cliente = v.id_cliente "

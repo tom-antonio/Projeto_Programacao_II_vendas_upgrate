@@ -31,7 +31,7 @@ public class CompraProdutoController {
         }
 
         CompraProduto compraProduto = new CompraProduto();
-    compraProduto.setId(id);
+        compraProduto.setId(id);
         compraProduto.setIdCompra(compraId);
         compraProduto.setIdProduto(produtoId);
         compraProduto.setQtdeProduto(qtdeProduto);

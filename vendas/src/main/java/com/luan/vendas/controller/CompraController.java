@@ -20,6 +20,7 @@ public class CompraController {
         this.produtoDao = new ProdutoDao();
     }
 
+    // Método para validar e salvar uma compra, incluindo atualização de estoque e preço médio
     public boolean salvarCompra(int id, Date dataCompra, double valorTotal, int fornecedorId, List<CompraProduto> compraProdutos) {
         if (id <= 0) {
             return false;
@@ -38,9 +39,6 @@ public class CompraController {
         }
 
         for (CompraProduto compraProduto : compraProdutos) {
-            if (compraProduto == null) {
-                return false;
-            }
             if (compraProduto.getIdProduto() <= 0) {
                 return false;
             }
@@ -91,6 +89,7 @@ public class CompraController {
         return true;
     }
 
+    // Método para verificar se os produtos existem antes de salvar a compra
     private boolean verificarEstoque(List<CompraProduto> compraProdutos) {
         for (CompraProduto compraProduto : compraProdutos) {
             Produto produtoExistente = produtoDao.pesquisar(compraProduto.getIdProduto());
@@ -102,6 +101,7 @@ public class CompraController {
         return true;
     }
 
+    // Método para atualizar o estoque dos produtos após salvar a compra
     private boolean atualizarEstoque(List<CompraProduto> compraProdutos, int sinal) {
         for (CompraProduto compraProduto : compraProdutos) {
             Produto produto = new Produto();
@@ -134,9 +134,6 @@ public class CompraController {
         }
 
         for (CompraProduto compraProduto : compraProdutos) {
-            if (compraProduto == null) {
-                return false;
-            }
             if (compraProduto.getIdProduto() <= 0) {
                 return false;
             }

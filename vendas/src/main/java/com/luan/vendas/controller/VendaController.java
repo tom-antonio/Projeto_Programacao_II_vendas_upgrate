@@ -40,20 +40,19 @@ public class VendaController {
 			return false;
 		}
 
+		// Verificar se o cliente existe
 		Cliente clienteExistente = clienteDao.pesquisar(clienteId);
 		if (clienteExistente == null) {
 			return false;
 		}
 
-		int vendasNoMes = vendaDao.contarVendasPorCpfNoMes(clienteExistente.getCpf(), dataVenda);
+		// Verificar se o cliente já realizou 3 ou mais vendas no mesmo mês
+		int vendasNoMes = vendaDao.contarVendas(clienteExistente.getCpf(), dataVenda);
 		if (vendasNoMes >= 3) {
 			return false;
 		}
 
 		for (ProdutoVenda produtoVenda : produtosVenda) {
-			if (produtoVenda == null) {
-				return false;
-			}
 			if (produtoVenda.getIdProduto() <= 0) {
 				return false;
 			}
@@ -66,7 +65,7 @@ public class VendaController {
 			return false;
 		}
 
-		if (!alterarEstoque(produtosVenda, -1)) {
+		if (!atualizarEstoque(produtosVenda, -1)) {
 			return false;
 		}
 
@@ -79,6 +78,7 @@ public class VendaController {
 
 		boolean salvo = vendaDao.salvar(venda);
 		if (!salvo) {
+			atualizarEstoque(produtosVenda, 1);
 			return false;
 		}
 
@@ -112,7 +112,7 @@ public class VendaController {
 		return true;
 	}
 
-	private boolean alterarEstoque(List<ProdutoVenda> produtosVenda, int sinal) {
+	private boolean atualizarEstoque(List<ProdutoVenda> produtosVenda, int sinal) {
 		for (ProdutoVenda produtoVenda : produtosVenda) {
 			Produto produto = new Produto();
 			produto.setId(produtoVenda.getIdProduto());
@@ -148,9 +148,6 @@ public class VendaController {
 		}
 
 		for (ProdutoVenda produtoVenda : produtosVenda) {
-			if (produtoVenda == null) {
-				return false;
-			}
 			if (produtoVenda.getIdProduto() <= 0) {
 				return false;
 			}
