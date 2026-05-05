@@ -259,7 +259,7 @@ public class VendaDao {
              PreparedStatement ps = conn != null ? conn.prepareStatement(sql) : null) {
 
             if (ps == null) {
-                return 0;
+                return 1000; // Retorna um número alto para indicar erro na conexão
             }
 
             ps.setString(1, cpf);

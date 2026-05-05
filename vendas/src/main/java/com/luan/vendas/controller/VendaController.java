@@ -48,7 +48,12 @@ public class VendaController {
 
 		// Verificar se o cliente já realizou 3 ou mais vendas nos últimos 30 dias
 		int vendasNoMes = vendaDao.contarVendas(clienteExistente.getCpf(), dataVenda);
+		if (vendasNoMes == 1000) {
+			System.out.println("Erro ao contar vendas para o cliente " + clienteExistente.getCpf());
+			return false; // Erro ao acesar o banco de dados, não processar a venda
+		}
 		if (vendasNoMes >= 3) {
+			System.out.println("O cliente " + clienteExistente.getCpf() + " já realizou 3 ou mais vendas nos últimos 30 dias.");
 			return false;
 		}
 
