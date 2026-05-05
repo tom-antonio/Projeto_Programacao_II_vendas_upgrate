@@ -56,8 +56,8 @@ public class ProdutoVendaDao {
                         rs.getInt("id_prodvenda"),
                         rs.getInt("fk_venda"),
                         rs.getInt("fk_produto"),
-                    rs.getInt("qtde_prodvenda"),
-                    rs.getDouble("valor_unit")
+                        rs.getInt("qtde_prodvenda"),
+                        rs.getDouble("valor_unit")
                 );
                 relacionamentos.add(produtoVenda);
             }
@@ -115,8 +115,8 @@ public class ProdutoVendaDao {
                         rs.getInt("id_prodvenda"),
                         rs.getInt("fk_venda"),
                         rs.getInt("fk_produto"),
-                    rs.getInt("qtde_prodvenda"),
-                    rs.getDouble("valor_unit")
+                        rs.getInt("qtde_prodvenda"),
+                        rs.getDouble("valor_unit")
                 );
                 relacionamentos.add(produtoVenda);
             }
